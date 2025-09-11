@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Paul Jung • Data Engineering Portfolio</title>
+<meta name="color-scheme" content="dark"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&family=EB+Garamond:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root{--bg0:#05060a;--bg1:#0a0e18;--ink:#e8eef8;--muted:rgba(232,238,248,.72);--accent:#14d4bf;--pad:6%;--mega:clamp(2.6rem,8vw,7.5rem);--xl:clamp(1.05rem,2.2vw,1.3rem)}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:radial-gradient(1200px 800px at 50% 50%,var(--bg1) 0%,var(--bg0) 55%,#03040a 100%);color:var(--ink);font:400 16px/1.6 Inter,sans-serif;overflow-x:hidden}
+
+  #gl,#field,#grid,.vignette{position:fixed;inset:0;pointer-events:none}
+  #gl,#field,#grid{width:100vw;height:100vh}
+  #gl{z-index:0} #field{z-index:1} #grid{z-index:1}
+  .vignette{z-index:2;background:
+    radial-gradient(ellipse at 50% 50%,rgba(20,212,191,.05),transparent 42%),
+    radial-gradient(ellipse at 50% 40%,transparent 0 58%,rgba(0,0,0,.95) 100%)}
+
+  .content{position:relative;z-index:3}
+  section.section{min-height:100vh;display:flex;align-items:center;position:relative}
+  .inner{width:100%;max-width:1600px;margin:0 auto;padding:10vh var(--pad)}
+
+  .panel{position:fixed;right:12px;top:12px;z-index:5;width:280px;background:rgba(10,14,20,.6);border:1px solid rgba(255,255,255,.06);border-radius:12px;backdrop-filter:blur(10px);padding:10px 12px;color:#dbe6ff;font-size:12px;opacity:0;pointer-events:none;transition:opacity .3s ease}
+  .panel:hover,.panel:focus-within{opacity:1;pointer-events:auto}
+
+  .icon-btn svg{width:16px;height:16px;transition:transform .25s ease}
+  .card.collapsed .icon-btn svg{transform:rotate(-90deg)}
+
+  /* Easter egg cursor shapes */
+  .cursor-star,.cursor-heart,.cursor-constellation{position:fixed;pointer-events:none;z-index:6;mix-blend-mode:screen;animation:fade .8s forwards}
+  @keyframes fade{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.6)}}
+  .cursor-star::before{content:'★';font-size:28px;color:#14d4bf;text-shadow:0 0 12px #0ff}
+  .cursor-heart::before{content:'❤';font-size:26px;color:#ff6fa8;text-shadow:0 0 14px #f0a}
+  .cursor-constellation::before{content:'✦ ✧ ✦';font-size:20px;color:#e0d8ff;text-shadow:0 0 10px #c8f}
+  /* Panel reveal + gear */
+  .gear{position:fixed;right:12px;top:12px;z-index:6;width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#dbe6ff;display:grid;place-items:center;cursor:pointer;transition:filter .2s ease,opacity .2s ease}
+  .gear:hover{filter:brightness(1.2)}
+  .panel{opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; transform:translateY(-6px)}
+  .panel.show{opacity:1; pointer-events:auto; transform:translateY(0)}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="field"></canvas>
+<canvas id="grid"></canvas>
+<div class="vignette"></div>
+
+<div class="panel" id="panel">
+  <h4>Galaxy Controls</h4>
+  <div class="row"><label for="exposure">Exposure</label><input id="exposure" type="range" min="0.25" max="1.2" step="0.01" value="0.95"></div>
+  <div class="row"><label for="mass">Base Mass</label><input id="mass" type="range" min="0.5" max="1.8" step="0.01" value="0.75"></div>
+  <div class="row"><label for="speed">Orbit Speed</label><input id="speed" type="range" min="0.2" max="1.2" step="0.01" value="0.6"></div>
+  <div class="row"><label>Stars</label><span class="pill" id="starCount">—</span></div>
+</div>
+
+<div class="content">
+  <section class="section" id="s-intro"><div class="inner"><h1 class="title">From Data to Meaning</h1><p class="lead">Paul C. Jung</p></div></section>
+</div>
+
+<!-- Reveal chip for controls -->
+<button id="gear" aria-label="Galaxy controls" title="Galaxy controls" class="gear" tabindex="0">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.39 1.26 1 1.51H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+
+<script type="module">
+import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js";
+import gsap from "https://unpkg.com/gsap@3.12.5/index.js";
+import ScrollTrigger from "https://unpkg.com/gsap@3.12.5/ScrollTrigger.js";
+gsap.registerPlugin(ScrollTrigger);
+
+const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clampRatio = () => Math.min(window.devicePixelRatio || 1, 1.8);
+
+const exposureEl = document.getElementById('exposure');
+const massEl = document.getElementById('mass');
+const speedEl = document.getElementById('speed');
+const panel = document.getElementById('panel');
+const gear = document.getElementById('gear');
+const gl = document.getElementById('gl');
+const field = document.getElementById('field');
+const grid = document.getElementById('grid');
+const fctx = field.getContext('2d');
+const gctx = grid.getContext('2d');
+
+/* WebGL */
+const renderer = new THREE.WebGLRenderer({ canvas: gl, antialias:false, alpha:true, powerPreference:'high-performance' });
+renderer.setClearColor(0x000000, 0);
+renderer.setPixelRatio(clampRatio());
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 400);
+camera.position.set(0,0,8);
+
+function resize() {
+  const r = gl.getBoundingClientRect();
+  const w = Math.max(1, Math.round(r.width));
+  const h = Math.max(1, Math.round(r.height));
+  renderer.setPixelRatio(clampRatio());
+  renderer.setSize(w, h, true);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+resize();
+addEventListener('resize', resize, { passive:true });
+new ResizeObserver(resize).observe(gl);
+
+/* Nebula */
+const nebMat = new THREE.ShaderMaterial({
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+  uniforms:{uTime:{value:0},uExposure:{value:0.6}},
+  vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+  fragmentShader:`precision mediump float; varying vec2 vUv; uniform float uTime, uExposure;
+  float n(vec2 p){ return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5453); }
+  float sm(vec2 p){ vec2 i=floor(p), f=fract(p); float a=n(i), b=n(i+vec2(1,0)), c=n(i+vec2(0,1)), d=n(i+vec2(1,1));
+    vec2 u=f*f*(3.0-2.0*f); return mix(a,b,u.x)+ (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y; }
+  float fbm(vec2 p){ float v=0.0; float a=0.5; for(int i=0;i<5;i++){ v+=a*sm(p); p*=2.1; a*=0.55; } return v; }
+  void main(){
+    vec2 uv=vUv*2.0; float t=uTime*0.03;
+    float f=fbm(uv*3.0 + vec2(t, -t*0.7));
+    float g=fbm(uv*1.2 - vec2(t*0.4, t*0.2));
+    float m=smoothstep(0.55,0.9,f) * 0.6 + smoothstep(0.65,0.92,g)*0.4;
+    vec3 col=mix(vec3(0.02,0.10,0.18), vec3(0.10,0.75,0.62), m);
+    col+= vec3(0.85,0.55,1.0)*pow(m,3.0)*0.35;
+    gl_FragColor=vec4(col*uExposure*0.7, m*0.35);
+  }`
+});
+scene.add(new THREE.Mesh(new THREE.PlaneGeometry(40,22,1,1), nebMat)).position.z=-6.0;
+
+/* Background starfield */
+const BG_COUNT = 16000;
+const sGeom = new THREE.BufferGeometry();
+const sPos = new Float32Array(BG_COUNT*3);
+const sSpd = new Float32Array(BG_COUNT);
+const sPhi = new Float32Array(BG_COUNT);
+for(let i=0;i<BG_COUNT;i++){
+  const r = 38 + Math.random()*44;
+  const t = Math.acos(2*Math.random()-1), p = Math.random()*Math.PI*2;
+  sPos[i*3] = r*Math.sin(t)*Math.cos(p);
+  sPos[i*3+1] = r*Math.sin(t)*Math.sin(p);
+  sPos[i*3+2] = r*Math.cos(t);
+  sSpd[i] = 0.02 + Math.random()*0.06;
+  sPhi[i] = Math.random()*Math.PI*2;
+}
+sGeom.setAttribute('position', new THREE.BufferAttribute(sPos,3));
+sGeom.setAttribute('aSpeed', new THREE.BufferAttribute(sSpd,1));
+sGeom.setAttribute('aPhi',   new THREE.BufferAttribute(sPhi,1));
+const sUni = { uTime:{value:0}, uMouse:{value:new THREE.Vector3(0,0,0)} };
+const starfield = new THREE.Points(
+  sGeom,
+  new THREE.ShaderMaterial({
+    uniforms:sUni, transparent:true, depthWrite:false,
+    vertexShader:`
+      attribute float aSpeed, aPhi; uniform float uTime; uniform vec3 uMouse; varying float vTw;
+      void main(){
+        vec3 p = position;
+        float ang = aSpeed * uTime * 0.15;
+        float cs = cos(ang), sn = sin(ang);
+        p.xy = mat2(cs,-sn,sn,cs) * p.xy;
+        p.x += (uMouse.x)*0.08; p.y += (uMouse.y)*0.08;
+        vTw = sin(uTime*0.8 + aPhi)*0.5+0.5;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(p,1.0);
+        gl_PointSize = 1.0 + 1.6*vTw;
+      }`,
+    fragmentShader:`precision mediump float; varying float vTw; void main(){ vec2 uv=gl_PointCoord*2.0-1.0; float d=dot(uv,uv); float a=smoothstep(1.0,0.0,d)*(0.18+0.22*vTw); gl_FragColor=vec4(0.72,0.82,1.0,a);} `
+  })
+);
+scene.add(starfield);
+
+/* Galaxy with expanded cursor gravity reach */
+const COUNT = prefersReduced ? 12000 : 32000, R_MIN=0.15, R_MAX=6.2;
+const geo=new THREE.InstancedBufferGeometry();
+geo.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
+geo.instanceCount=COUNT;
+const rad=new Float32Array(COUNT),th0=new Float32Array(COUNT),dir=new Float32Array(COUNT),nz=new Float32Array(COUNT),typ=new Float32Array(COUNT);
+for(let i=0;i<COUNT;i++){ rad[i]=THREE.MathUtils.lerp(R_MIN,R_MAX,Math.pow(Math.random(),0.55)); th0[i]=Math.random()*Math.PI*2; dir[i]=(Math.random()<0.88)?1:-1; nz[i]=(Math.random()*2-1); typ[i]=(Math.random()<0.16)?1:0; }
+geo.setAttribute('i_radius',new THREE.InstancedBufferAttribute(rad,1));
+geo.setAttribute('i_theta0',new THREE.InstancedBufferAttribute(th0,1));
+geo.setAttribute('i_dir',new THREE.InstancedBufferAttribute(dir,1));
+geo.setAttribute('i_noise',new THREE.InstancedBufferAttribute(nz,1));
+geo.setAttribute('i_type',new THREE.InstancedBufferAttribute(typ,1));
+document.getElementById('starCount').textContent=COUNT.toLocaleString();
+
+const uni={uTime:{value:0},uMouse:{value:new THREE.Vector3(0,0,0)},uExposure:{value:0.6},uSpeed:{value:0.6},
+           uColors:{value:new THREE.Vector3(0.45,0.86,1.00)},uColors2:{value:new THREE.Vector3(0.92,0.45,1.00)},uColors3:{value:new THREE.Vector3(0.12,1.00,0.78)}};
+const vsh=`
+attribute float i_radius,i_theta0,i_dir,i_noise,i_type; uniform float uTime,uSpeed; uniform vec3 uMouse; varying float vR,vType,vTw;
+float powf(float a, float b){ return exp(b*log(max(a,1e-6))); }
+vec2 grav(vec2 p, vec2 q, float m){ vec2 d=p-q; float r2=max(dot(d,d),0.02); float inv=m/powf(r2,0.7); vec2 tang=vec2(-d.y,d.x); return normalize(tang)*inv*0.25; }
+void main(){ float r=i_radius; float omega=uSpeed*0.58*inversesqrt(max(r,0.0001)); omega*=mix(1.0,0.55,step(0.5,i_type)); float th=i_theta0 + i_dir*uTime*omega; vec2 p=vec2(cos(th),sin(th))*r; p+=(0.05+0.04*i_noise)*vec2(cos(2.2*th+i_noise*5.0),sin(1.9*th-i_noise*4.0)); vec2 l=grav(p,uMouse.xy,uMouse.z); p+=l; float z=(i_type>0.5?0.40:0.16)*(fract(sin(i_noise*43758.5453)*1e4)*2.0-1.0); vR=r; vType=i_type; vTw=length(l); gl_Position=projectionMatrix*modelViewMatrix*vec4(p,z,1.0); float base=mix(0.55,1.1,1.0/(1.0+r*0.22)); gl_PointSize=base*(1.0+4.0*vTw)*(1.0+0.3*float(i_type<0.5)); }`.trim();
+const fsh=`precision mediump float; uniform vec3 uColors,uColors2,uColors3; uniform float uExposure; varying float vR,vType,vTw; void main(){ vec2 uv=gl_PointCoord*2.0-1.0; float d=dot(uv,uv); float core=smoothstep(1.0,0.0,d)*0.55; float t=clamp(vR/6.0,0.0,1.0); vec3 c=mix(uColors,uColors2,smoothstep(0.0,0.6,t)); c=mix(c,uColors3,smoothstep(0.35,1.0,t)); c=mix(c,vec3(1.0,0.85,0.55),step(0.5,vType)); c*=uExposure; float g=clamp(vTw*4.0,0.0,1.0); c+=g*0.35; gl_FragColor=vec4(c,core*(0.6+0.25*g)); }`.trim();
+scene.add(new THREE.Points(geo,new THREE.ShaderMaterial({vertexShader:vsh,fragmentShader:fsh,uniforms:uni,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));
+
+/* Cursor halo — multi-shape easter eggs */
+const overlay = new THREE.Scene();
+const cam2 = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+const HALO = 800;
+const haloGeo = new THREE.BufferGeometry();
+const hPos = new Float32Array(HALO*2), hPhase = new Float32Array(HALO), hRad = new Float32Array(HALO);
+for(let i=0;i<HALO;i++){ const a=Math.random()*Math.PI*2; hPos[i*2]=Math.cos(a); hPos[i*2+1]=Math.sin(a); hPhase[i]=Math.random()*Math.PI*2; hRad[i]=0.006 + Math.random()*0.06; }
+haloGeo.setAttribute('aPos',   new THREE.BufferAttribute(hPos,2));
+haloGeo.setAttribute('aPhase', new THREE.BufferAttribute(hPhase,1));
+haloGeo.setAttribute('aRad',   new THREE.BufferAttribute(hRad,1));
+const haloUni = { uTime:{value:0}, uCursor:{value:new THREE.Vector2(0,0)}, uScale:{value:1.0}, uAspect:{value:1.0}, uMode:{value:0} };
+const haloPoints = new THREE.Points(
+  haloGeo,
+  new THREE.ShaderMaterial({
+    uniforms: haloUni, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:`
+      attribute vec2 aPos; attribute float aPhase, aRad;
+      uniform vec2 uCursor; uniform float uScale, uAspect, uTime; uniform int uMode; varying float vTw; varying float vMix;
+      float PI = 3.14159265359;
+      void main(){
+        float tw = sin(uTime*4.0 + aPhase)*0.5 + 0.5;
+        float ang = atan(aPos.y, aPos.x);
+        float rad = length(aPos);
+        // shape radius modulation by mode
+        float k = 1.0;
+        if(uMode==1){ // flower (6 petals)
+          k = 1.0 + 0.55 * sin(6.0*ang + uTime*1.2);
+        } else if(uMode==2){ // starburst
+          k = 0.7 + 0.6 * abs(sin(5.0*ang + uTime*1.6));
+        } else if(uMode==3){ // triangle orbit
+          float seg = floor((ang+PI)/ (2.0*PI/3.0));
+          float a0 = -PI + seg*(2.0*PI/3.0);
+          float edge = abs(sin(1.5*(ang-a0)));
+          k = 0.85 + 0.5*edge;
+        } else if(uMode==4){ // spiral
+          k = 0.6 + 0.6 * fract((ang + uTime*0.8)/ (2.0*PI));
+        }
+        vec2 base = normalize(aPos) * (0.08 + aRad*0.9) * k;
+        base.x *= uAspect;
+        vec2 ndc = uCursor + base * uScale;
+        gl_Position = vec4(ndc, 0.0, 1.0);
+        gl_PointSize = 2.0 + 3.0*tw * k;
+        vTw = tw; vMix = k;
+      }`,
+    fragmentShader:`precision mediump float; varying float vTw; varying float vMix;
+      void main(){ vec2 q = gl_PointCoord*2.0-1.0; float d=dot(q,q);
+        vec3 c1=vec3(0.08,0.95,0.78); vec3 c2=vec3(0.25,0.55,0.95); vec3 c3=vec3(0.98,0.45,0.95);
+        float t = clamp(vMix*0.6 + vTw*0.4, 0.0, 1.0);
+        vec3 col = mix(mix(c1,c2,t), c3, t*t);
+        float a = smoothstep(1.0,0.0,d) * mix(0.35,0.95,vTw);
+        gl_FragColor = vec4(col, a);
+      }`
+  })
+);
+overlay.add(haloPoints);
+
+/* 2D canvases sizing */
+function size2D(){
+  const r=gl.getBoundingClientRect(); const pr = clampRatio();
+  field.width=r.width*pr; field.height=r.height*pr; field.style.width=r.width+'px'; field.style.height=r.height+'px'; fctx.setTransform(pr,0,0,pr,0,0);
+  grid.width=r.width*pr;  grid.height=r.height*pr;  grid.style.width=r.width+'px';  grid.style.height=r.height+'px';  gctx.setTransform(pr,0,0,pr,0,0);
+  haloUni.uAspect.value = r.width / r.height;
+}
+size2D();
+addEventListener('resize', size2D, { passive:true });
+new ResizeObserver(size2D).observe(gl);
+
+/* Cursor mapping */
+const worldMouse=new THREE.Vector2(0,0); let baseMass=0.9,mass=0.9,spike=0; // bump mass default
+function screenToWorldOnPlane(sx,sy,planeZ=0){
+  const rect=gl.getBoundingClientRect();
+  const nx=((sx-rect.left)/rect.width)*2-1;
+  const ny=-(((sy-rect.top)/rect.height)*2-1);
+  const o=camera.position.clone();
+  const v=new THREE.Vector3(nx,ny,0.5).unproject(camera);
+  const d=v.sub(o).normalize();
+  const t=(planeZ - o.z)/d.z;
+  return new THREE.Vector2(o.x + d.x*t, o.y + d.y*t);
+}
+addEventListener('pointermove',e=>{
+  const rect=gl.getBoundingClientRect();
+  const nx=((e.clientX-rect.left)/rect.width)*2-1;
+  const ny=-(((e.clientY-rect.top)/rect.height)*2-1);
+  haloUni.uCursor.value.set(nx,ny);
+  worldMouse.copy(screenToWorldOnPlane(e.clientX,e.clientY,0));
+},{passive:true});
+
+/* Flow field expanded across full view */
+const seeds=[];(function(){
+  const cols=18, rows=10; // grid of seeds over full plane
+  for(let j=0;j<rows;j++){
+    for(let i=0;i<cols;i++){
+      const u=i/(cols-1)*2-1, v=j/(rows-1)*2-1; // NDC
+      const x=u*3.5, y=v*2.2; // cover plane
+      seeds.push({x,y});
+    }
+  }
+})();
+function fVec(x,y){ const r2=Math.max(x*x+y*y,0.0002); let inv=1.0/Math.pow(r2,0.65); let vx=-y*inv,vy=x*inv; const dx=x-worldMouse.x,dy=y-worldMouse.y,q2=dx*dx+dy*dy+0.01,grav=mass/Math.pow(q2,0.7); vx+=(-dy)*grav*0.28; vy+=(dx)*grav*0.28; return [vx,vy]; }
+function toScreen(x,y){ const v=new THREE.Vector3(x,y,0).project(camera); const r=gl.getBoundingClientRect(); return [(v.x*0.5+0.5)*r.width,(-v.y*0.5+0.5)*r.height]; }
+function drawField(){
+  const r=gl.getBoundingClientRect();
+  fctx.clearRect(0,0,r.width,r.height);
+  fctx.globalCompositeOperation='lighter';
+  const cols=['rgba(20,212,191,0.16)','rgba(120,180,255,0.14)','rgba(234,86,255,0.12)','rgba(255,212,96,0.09)'];
+  for(let k=0;k<seeds.length;k++){
+    let x=seeds[k].x, y=seeds[k].y;
+    let [sx,sy]=toScreen(x,y);
+    fctx.beginPath(); fctx.moveTo(sx,sy);
+    const steps=70;
+    for(let i=0;i<steps;i++){ const [vx,vy]=fVec(x,y); x+=vx*0.02; y+=vy*0.02; [sx,sy]=toScreen(x,y); fctx.lineTo(sx,sy); }
+    fctx.strokeStyle=cols[k%cols.length]; fctx.lineWidth=1; fctx.stroke();
+  }
+  fctx.globalCompositeOperation='source-over';
+}
+function drawGrid(){
+  const r=gl.getBoundingClientRect();
+  gctx.clearRect(0,0,r.width,r.height);
+  gctx.strokeStyle='rgba(255,255,255,0.06)'; gctx.lineWidth=1;
+  const step=40, cols=Math.ceil(r.width/step)+2, rows=Math.ceil(r.height/step)+2;
+  for(let j=-1;j<=rows;j++){
+    gctx.beginPath();
+    for(let i=-1;i<=cols;i++){
+      const sx=i*step, sy=j*step;
+      let p=screenToWorldOnPlane(sx,sy,0);
+      const dx=p.x-worldMouse.x, dy=p.y-worldMouse.y, r2=dx*dx+dy*dy+0.06;
+      const k=0.22*mass/Math.pow(r2,0.7); p.x+=dx*k; p.y+=dy*k;
+      const q=new THREE.Vector3(p.x,p.y,0).project(camera);
+      const px=(q.x*0.5+0.5)*r.width, py=(-q.y*0.5+0.5)*r.height;
+      if(i===-1) gctx.moveTo(px,py); else gctx.lineTo(px,py);
+    }
+    gctx.stroke();
+  }
+  for(let i=-1;i<=cols;i++){
+    gctx.beginPath();
+    for(let j=-1;j<=rows;j++){
+      const sx=i*step, sy=j*step;
+      let p=screenToWorldOnPlane(sx,sy,0);
+      const dx=p.x-worldMouse.x, dy=p.y-worldMouse.y, r2=dx*dx+dy*dy+0.06;
+      const k=0.22*mass/Math.pow(r2,0.7); p.x+=dx*k; p.y+=dy*k;
+      const q=new THREE.Vector3(p.x,p.y,0).project(camera);
+      const px=(q.x*0.5+0.5)*r.width, py=(-q.y*0.5+0.5)*r.height;
+      if(j===-1) gctx.moveTo(px,py); else gctx.lineTo(px,py);
+    }
+    gctx.stroke();
+  }
+}
+
+/* UI */
+exposureEl.addEventListener('input',()=>nebMat.uniforms.uExposure.value=uni.uExposure.value=parseFloat(exposureEl.value));
+massEl.addEventListener('input',()=>baseMass=parseFloat(massEl.value));
+speedEl.addEventListener('input',()=>uni.uSpeed.value=parseFloat(speedEl.value));
+
+// Panel reveal behavior
+let hideTimer=null; const showPanel=()=>{panel.classList.add('show')}; const hidePanel=()=>{panel.classList.remove('show')};
+gear.addEventListener('mouseenter',showPanel);
+panel.addEventListener('mouseenter',()=>{ if(hideTimer){clearTimeout(hideTimer); hideTimer=null;} showPanel(); });
+panel.addEventListener('mouseleave',()=>{ hideTimer=setTimeout(hidePanel,200); });
+gear.addEventListener('mouseleave',()=>{ hideTimer=setTimeout(hidePanel,300); });
+
+// Cert accordions
+document.querySelectorAll('.card.cert').forEach(card=>{
+  const btn=card.querySelector('.icon-btn');
+  const list=card.querySelector('.items');
+  btn?.addEventListener('click',()=>{ const hidden=list.hasAttribute('hidden'); list.toggleAttribute('hidden'); card.classList.toggle('collapsed', !hidden); });
+});
+
+/* Numbers */
+function countUp(el,to,dur=1.4,decimals=null){
+  const start=performance.now(), from=0, fmt=(v)=>decimals===null?Math.floor(v):v.toFixed(decimals);
+  const target=parseFloat(to);
+  function step(t){ const p=Math.min(1,(t-start)/(dur*1000)); const v=from+(target-from)*p; el.textContent=fmt(v); if(p<1) requestAnimationFrame(step); }
+  requestAnimationFrame(step);
+}
+function runNumbersThenFade(){ const wrap=document.getElementById('nums'); if(!wrap) return; wrap.querySelectorAll('span[data-to]').forEach(s=>{const to=s.dataset.to, d=(to.includes('.')?to.split('.')[1].length:null); countUp(s,to,1.6,d);}); setTimeout(()=>wrap.classList.add('fade'),2000); }
+ScrollTrigger.create({trigger:'#s-oss',start:'top 80%',once:true,onEnter:runNumbersThenFade});
+
+/* Section reveals */
+document.querySelectorAll('.section').forEach(sec=>{
+  const cards=[...sec.querySelectorAll('.card')];
+  const tl=gsap.timeline({scrollTrigger:{trigger:sec,start:'top 78%',once:true}});
+  tl.from(sec.querySelector('.title'), {y:36,opacity:0,duration:0.6,ease:'power3.out',immediateRender:false}, 0)
+    .from(sec.querySelector('.lead'),  {y:18,opacity:0,duration:0.6,ease:'power3.out',immediateRender:false}, 0.05)
+    .from(cards, {y:22,autoAlpha:0,filter:'blur(4px)',clearProps:'filter',stagger:0.08,duration:0.4,ease:'power3.out',immediateRender:false}, 0.1);
+});
+
+/* Easter eggs: click to cycle cursor mode; Alt+click plots constellation points */
+let mode=0; // 0=halo,1=flower,2=star,3=triangle,4=spiral
+addEventListener('click', (e)=>{ if(e.altKey){ addConstellationPoint(e.clientX,e.clientY); return; } spike=1; mode=(mode+1)%5; haloUni.uMode.value=mode; });
+
+// Constellation drawing
+const constPoints=[]; function addConstellationPoint(x,y){ const r=gl.getBoundingClientRect(); constPoints.push({x:(x-r.left), y:(y-r.top), t:performance.now()}); if(constPoints.length>10) constPoints.shift(); }
+function drawConstellations(){ const r=gl.getBoundingClientRect(); gctx.save(); gctx.translate(0,0); gctx.lineWidth=1.5; gctx.strokeStyle='rgba(180,220,255,0.55)'; gctx.shadowColor='rgba(120,180,255,0.35)'; gctx.shadowBlur=8; const now=performance.now(); gctx.beginPath(); for(let i=0;i<constPoints.length;i++){ const p=constPoints[i]; const age=(now-p.t)/2000; if(age>1) continue; const alpha=1-age; gctx.globalAlpha=alpha; if(i===0) gctx.moveTo(p.x,p.y); else gctx.lineTo(p.x,p.y); }
+  gctx.stroke(); gctx.globalAlpha=1; // draw small star nodes
+  for(const p of constPoints){ const age=(now-p.t)/2000; if(age>1) continue; const a=1-age; gctx.fillStyle=`rgba(230,245,255,${0.7*a})`; gctx.beginPath(); gctx.arc(p.x,p.y,2.5,0,Math.PI*2); gctx.fill(); }
+  gctx.restore(); }
+
+/* Animate loop */
+let t0=performance.now(); let fpsS=0, fpsN=0;
+requestAnimationFrame(function tick(){
+  const t=performance.now(),dt=(t-t0)/1000; t0=t;
+  mass+=(baseMass-mass)*0.06; if(spike>0){mass+=0.5*spike; spike*=0.88;}
+  const wm=new THREE.Vector3(worldMouse.x,worldMouse.y,mass);
+  uni.uMouse.value.copy(wm); sUni.uMouse.value.copy(wm);
+  uni.uTime.value+= prefersReduced? dt*0.35: dt*0.6; sUni.uTime.value+= dt; nebMat.uniforms.uTime.value+=dt; haloUni.uTime.value+=dt;
+  renderer.render(scene,camera);
+  renderer.autoClear=false; renderer.clearDepth(); renderer.render(overlay,cam2); renderer.autoClear=true;
+  drawField(); drawGrid(); drawConstellations();
+  fpsS+=1/dt; fpsN++; if(fpsN>60){ const fps=fpsS/fpsN; haloUni.uScale.value = fps<40? 0.7 : 1.0; fpsS=0; fpsN=0; }
+  requestAnimationFrame(tick);
+});
+
+/* Smoke test */
+setTimeout(()=>{ console.assert(scene.children.length>=3,'scene ok'); },300);
+</script>
+
+</body>
+</html>
