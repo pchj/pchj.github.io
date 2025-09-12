@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Paul Jung • Data Engineering Portfolio</title>
 <meta name="color-scheme" content="dark"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&family=EB+Garamond:wght@600;700&display=swap" rel="stylesheet"/>
 <style>
   :root{--bg0:#05060a;--bg1:#0a0e18;--ink:#e8eef8;--muted:rgba(232,238,248,.72);--accent:#14d4bf;--pad:6%;--mega:clamp(2.6rem,8vw,7.5rem);--xl:clamp(1.05rem,2.2vw,1.3rem)}
@@ -27,8 +28,8 @@
   .lead{font-size:var(--xl);max-width:860px;color:var(--muted)}
 
   .cards{margin:4vh auto 2vh;max-width:1600px;padding:0 var(--pad);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
-  .card{padding:18px 20px;border-radius:16px;background:rgba(12,16,22,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.06);box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .25s ease,border-color .25s ease,filter .25s ease;transform-style:preserve-3d;filter:none}
-  .card:hover{transform:translateY(-4px) rotateX(1.2deg) rotateY(1.2deg);border-color:rgba(20,212,191,.22);filter:brightness(1.03)}
+  .card{padding:18px 20px;border-radius:16px;background:rgba(12,16,22,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.06);box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .25s ease,border-color .25s ease;transform-style:preserve-3d}
+  @media (hover:hover){.card:hover{transform:translateY(-4px) rotateX(1.2deg) rotateY(1.2deg);}}
   .card h3{margin:0 0 6px 0;font-size:18px;font-weight:700}
   .card p{margin:0;font-size:14px;color:var(--muted)}
   .metric{display:flex;align-items:center;gap:10px;margin-top:10px}
@@ -63,7 +64,6 @@
   <div class="row"><label>Stars</label><span class="pill" id="starCount">—</span></div>
 </div>
 
-<!-- Intro -->
 <section class="section" id="s-intro">
   <div class="inner">
     <h1 class="title headerText">From Data to Meaning</h1>
@@ -76,7 +76,6 @@
   </div>
 </section>
 
-<!-- Open Source -->
 <section class="section" id="s-oss"><div class="inner">
   <h1 class="title">Open Source</h1>
   <p class="lead">Blueprints that behave under load.</p>
@@ -94,7 +93,6 @@
   </div>
 </div></section>
 
-<!-- Certifications -->
 <section class="section" id="s-certs"><div class="inner">
   <h1 class="title">Certifications</h1>
   <p class="lead">Click a track to expand completions and dates.</p>
@@ -130,7 +128,6 @@
   </div>
 </div></section>
 
-<!-- About -->
 <section class="section" id="s-about"><div class="inner">
   <h1 class="title">About me</h1>
   <p class="lead">Resume · Blog · Ideas</p>
@@ -142,16 +139,38 @@
 </div></section>
 
 <script type="module">
-import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js";
-import gsap from "https://unpkg.com/gsap@3.12.5/index.js";
-import ScrollTrigger from "https://unpkg.com/gsap@3.12.5/ScrollTrigger.js";
-gsap.registerPlugin(ScrollTrigger);
-
-/* Helpers */
+/* ===== Config / quality gating ===== */
+const UA = navigator.userAgent||'';
+const isMobileUA = /Mobi|Android/i.test(UA);
+const qs = new URLSearchParams(location.search).get('q'); // low | med | high
+const quality = qs==='low' ? 'low' : qs==='high' ? 'high' : (isMobileUA ? 'med' : 'high');
+const clampRatio = () => quality==='high' ? Math.min(window.devicePixelRatio||1,2) : 1;
 const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const clampRatio = () => Math.min(window.devicePixelRatio || 1, 2);
 
-/* DOM */
+/* ===== Counters via IntersectionObserver (no GSAP required) ===== */
+const numsWrap = document.getElementById('nums');
+if (numsWrap) {
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if (!e.isIntersecting) return;
+      numsWrap.querySelectorAll('span[data-to]').forEach(s=>{
+        const to = parseFloat(s.dataset.to);
+        const decimals = (s.dataset.to.includes('.') ? s.dataset.to.split('.')[1].length : null);
+        const start = performance.now(), dur = 1600, from=0;
+        const fmt = v => decimals==null ? Math.floor(v) : v.toFixed(decimals);
+        const step = (t)=>{ const p=Math.min(1,(t-start)/dur); s.textContent=fmt(from+(to-from)*p); if(p<1) requestAnimationFrame(step); };
+        requestAnimationFrame(step);
+      });
+      setTimeout(()=>numsWrap.classList.add('fade'), 2000);
+      io.disconnect();
+    });
+  },{threshold:0.2});
+  io.observe(numsWrap);
+}
+
+/* ===== 2D/3D setup ===== */
+import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js";
+
 const exposureEl = document.getElementById('exposure');
 const massEl = document.getElementById('mass');
 const speedEl = document.getElementById('speed');
@@ -161,7 +180,6 @@ const grid = document.getElementById('grid');
 const fctx = field.getContext('2d');
 const gctx = grid.getContext('2d');
 
-/* WebGL */
 const renderer = new THREE.WebGLRenderer({ canvas: gl, antialias:false, alpha:true, powerPreference:'high-performance' });
 renderer.setClearColor(0x000000, 0);
 renderer.setPixelRatio(clampRatio());
@@ -183,32 +201,35 @@ resize();
 addEventListener('resize', resize, { passive:true });
 new ResizeObserver(resize).observe(gl);
 
-/* Nebula (shader plane) */
-const nebMat = new THREE.ShaderMaterial({
-  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
-  uniforms:{uTime:{value:0},uExposure:{value:0.55}},
-  vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-  fragmentShader:`precision mediump float; varying vec2 vUv; uniform float uTime, uExposure;
-  float n(vec2 p){ return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5453); }
-  float sm(vec2 p){ vec2 i=floor(p), f=fract(p); float a=n(i), b=n(i+vec2(1,0)), c=n(i+vec2(0,1)), d=n(i+vec2(1,1));
-    vec2 u=f*f*(3.0-2.0*f); return mix(a,b,u.x)+ (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y; }
-  float fbm(vec2 p){ float v=0.0; float a=0.5; for(int i=0;i<5;i++){ v+=a*sm(p); p*=2.1; a*=0.55; } return v; }
-  void main(){
-    vec2 uv=vUv*2.0; float t=uTime*0.03;
-    float f=fbm(uv*3.0 + vec2(t, -t*0.7));
-    float g=fbm(uv*1.2 - vec2(t*0.4, t*0.2));
-    float m=smoothstep(0.55,0.9,f) * 0.6 + smoothstep(0.65,0.92,g)*0.4;
-    vec3 col=mix(vec3(0.02,0.10,0.18), vec3(0.10,0.75,0.62), m);
-    col+= vec3(0.85,0.55,1.0)*pow(m,3.0)*0.35;
-    gl_FragColor=vec4(col*uExposure*0.7, m*0.35);
-  }`
-});
-const nebula=new THREE.Mesh(new THREE.PlaneGeometry(40,22,1,1), nebMat);
+/* ===== Nebula (shader plane) with mobile/desktop octaves ===== */
+function makeNebulaMaterial(octaves){
+  return new THREE.ShaderMaterial({
+    transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    uniforms:{uTime:{value:0},uExposure:{value:0.55}},
+    vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`precision mediump float; varying vec2 vUv; uniform float uTime, uExposure;
+      float n(vec2 p){ return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5453); }
+      float sm(vec2 p){ vec2 i=floor(p), f=fract(p); float a=n(i), b=n(i+vec2(1,0)), c=n(i+vec2(0,1)), d=n(i+vec2(1,1));
+        vec2 u=f*f*(3.0-2.0*f); return mix(a,b,u.x)+ (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y; }
+      float fbm(vec2 p){ float v=0.0; float a=0.5; for(int i=0;i<${octaves};i++){ v+=a*sm(p); p*=2.1; a*=0.55; } return v; }
+      void main(){
+        vec2 uv=vUv*2.0; float t=uTime*0.03;
+        float f=fbm(uv*3.0 + vec2(t, -t*0.7));
+        float g=fbm(uv*1.2 - vec2(t*0.4, t*0.2));
+        float m=smoothstep(0.55,0.9,f) * 0.6 + smoothstep(0.65,0.92,g)*0.4;
+        vec3 col=mix(vec3(0.02,0.10,0.18), vec3(0.10,0.75,0.62), m);
+        col+= vec3(0.85,0.55,1.0)*pow(m,3.0)*0.35;
+        gl_FragColor=vec4(col*uExposure*0.7, m*0.35);
+      }`
+  });
+}
+const nebMat = makeNebulaMaterial(quality==='high' ? 5 : 3);
+const nebula = new THREE.Mesh(new THREE.PlaneGeometry(40,22,1,1), nebMat);
 nebula.position.z=-6.0;
 scene.add(nebula);
 
-/* Background starfield */
-const BG_COUNT = 16000;
+/* ===== Background starfield (density by quality) ===== */
+const BG_COUNT = (quality==='high') ? 16000 : (quality==='med' ? 6000 : 4000);
 const sGeom = new THREE.BufferGeometry();
 const sPos = new Float32Array(BG_COUNT*3);
 const sSpd = new Float32Array(BG_COUNT);
@@ -252,13 +273,13 @@ const starfield = new THREE.Points(
 );
 scene.add(starfield);
 
-/* Galaxy */
-const COUNT = prefersReduced ? 14000 : 32000, R_MIN=0.15, R_MAX=6.0;
+/* ===== Galaxy points (density by quality / reduced motion) ===== */
+const COUNT = prefersReduced ? 8000 : (quality==='high' ? 32000 : 16000);
 const geo=new THREE.InstancedBufferGeometry();
 geo.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
 geo.instanceCount=COUNT;
 const rad=new Float32Array(COUNT),th0=new Float32Array(COUNT),dir=new Float32Array(COUNT),nz=new Float32Array(COUNT),typ=new Float32Array(COUNT);
-for(let i=0;i<COUNT;i++){ rad[i]=THREE.MathUtils.lerp(R_MIN,R_MAX,Math.pow(Math.random(),0.55)); th0[i]=Math.random()*Math.PI*2; dir[i]=(Math.random()<0.88)?1:-1; nz[i]=(Math.random()*2-1); typ[i]=(Math.random()<0.16)?1:0; }
+for(let i=0;i<COUNT;i++){ rad[i]=THREE.MathUtils.lerp(0.15,6.0,Math.pow(Math.random(),0.55)); th0[i]=Math.random()*Math.PI*2; dir[i]=(Math.random()<0.88)?1:-1; nz[i]=(Math.random()*2-1); typ[i]=(Math.random()<0.16)?1:0; }
 geo.setAttribute('i_radius',new THREE.InstancedBufferAttribute(rad,1));
 geo.setAttribute('i_theta0',new THREE.InstancedBufferAttribute(th0,1));
 geo.setAttribute('i_dir',new THREE.InstancedBufferAttribute(dir,1));
@@ -276,10 +297,10 @@ const fsh=`
 precision mediump float; uniform vec3 uColors,uColors2,uColors3; uniform float uExposure; varying float vR,vType,vTw; void main(){ vec2 uv=gl_PointCoord*2.0-1.0; float d=dot(uv,uv); float core=smoothstep(1.0,0.0,d)*0.55; float t=clamp(vR/6.0,0.0,1.0); vec3 c=mix(uColors,uColors2,smoothstep(0.0,0.6,t)); c=mix(c,uColors3,smoothstep(0.35,1.0,t)); c=mix(c,vec3(1.0,0.85,0.55),step(0.5,vType)); c*=uExposure; float g=clamp(vTw*4.0,0.0,1.0); c+=g*0.35; gl_FragColor=vec4(c,core*(0.6+0.25*g)); }`.trim();
 scene.add(new THREE.Points(geo,new THREE.ShaderMaterial({vertexShader:vsh,fragmentShader:fsh,uniforms:uni,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));
 
-/* Overlay halo (orthographic) */
+/* ===== Cursor & overlay halo ===== */
 const overlay = new THREE.Scene();
 const cam2 = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
-const HALO = 700;
+const HALO = (quality==='high') ? 700 : (quality==='med' ? 260 : 200);
 const haloGeo = new THREE.BufferGeometry();
 const hPos = new Float32Array(HALO*2), hPhase = new Float32Array(HALO), hRad = new Float32Array(HALO);
 for(let i=0;i<HALO;i++){ const a=Math.random()*Math.PI*2; hPos[i*2]=Math.cos(a); hPos[i*2+1]=Math.sin(a); hPhase[i]=Math.random()*Math.PI*2; hRad[i]=0.006 + Math.random()*0.06; }
@@ -342,36 +363,37 @@ addEventListener('pointermove',e=>{
 },{passive:true});
 addEventListener('click',()=>{spike=1;});
 
-/* Flow field + grid */
-const seeds=[];(function(){const n=prefersReduced?48:96; for(let i=0;i<n;i++){ const a=i/n*Math.PI*2,r=1+(i%2)*0.22; seeds.push({x:Math.cos(a)*r,y:Math.sin(a)*r}); }})();
+/* Flow field + grid (throttled on mobile / hidden) */
+const seeds=[];(function(){const n=prefersReduced?48:(quality==='high'?96:64); for(let i=0;i<n;i++){ const a=i/n*Math.PI*2,r=1+(i%2)*0.22; seeds.push({x:Math.cos(a)*r,y:Math.sin(a)*r}); }})();
 function fVec(x,y){ const r2=Math.max(x*x+y*y,0.0004),inv=1.0/Math.pow(r2,0.75); let vx=-y*inv,vy=x*inv; const dx=x-worldMouse.x,dy=y-worldMouse.y,q2=dx*dx+dy*dy+0.02,grav=mass/q2; vx+=(-dy)*grav*0.28; vy+=(dx)*grav*0.28; return [vx,vy]; }
 function toScreen(x,y){ const v=new THREE.Vector3(x,y,0).project(camera); const r=gl.getBoundingClientRect(); return [(v.x*0.5+0.5)*r.width,(-v.y*0.5+0.5)*r.height]; }
 function drawField(){
+  if (prefersReduced || (document.visibilityState!=='visible')) return;
   const r=gl.getBoundingClientRect();
   fctx.clearRect(0,0,r.width,r.height);
   fctx.globalCompositeOperation='lighter';
   const cols=['rgba(20,212,191,0.16)','rgba(120,180,255,0.14)','rgba(234,86,255,0.12)','rgba(255,212,96,0.09)'];
+  const steps = (quality==='high'?72:48);
   for(let k=0;k<seeds.length;k++){
     let x=seeds[k].x*(3.2+2.1*Math.sin((k*13.1)%6)), y=seeds[k].y*(2.0+1.4*Math.cos((k*7.7)%6));
     let [sx,sy]=toScreen(x,y);
     fctx.beginPath(); fctx.moveTo(sx,sy);
-    const steps=72;
     for(let i=0;i<steps;i++){ const [vx,vy]=fVec(x,y); const [vx2,vy2]=fVec(x+vx*0.01,y+vy*0.01); x+=vx2*0.02; y+=vy2*0.02; [sx,sy]=toScreen(x,y); fctx.lineTo(sx,sy); }
     fctx.strokeStyle=cols[k%cols.length]; fctx.lineWidth=1; fctx.stroke();
   }
   fctx.globalCompositeOperation='source-over';
 }
 function drawGrid(){
+  if (document.visibilityState!=='visible') return;
   const r=gl.getBoundingClientRect();
   gctx.clearRect(0,0,r.width,r.height);
   gctx.strokeStyle='rgba(255,255,255,0.06)'; gctx.lineWidth=1;
-  const step=40, cols=Math.ceil(r.width/step)+2, rows=Math.ceil(r.height/step)+2;
-
+  const step=(quality==='high'?40:48), cols=Math.ceil(r.width/step)+2, rows=Math.ceil(r.height/step)+2;
   for(let j=-1;j<=rows;j++){
     gctx.beginPath();
     for(let i=-1;i<=cols;i++){
-      const sx=i*step+0, sy=j*step+0;
-      let p=screenToWorldOnPlane(sx,sy,0);  /* note: sx,sy in client px from canvas origin */
+      const sx=i*step, sy=j*step;
+      let p=screenToWorldOnPlane(sx,sy,0);
       const dx=p.x-worldMouse.x, dy=p.y-worldMouse.y, r2=dx*dx+dy*dy+0.08;
       const k=0.18*mass/r2; p.x+=dx*k; p.y+=dy*k;
       const q=new THREE.Vector3(p.x,p.y,0).project(camera);
@@ -383,7 +405,7 @@ function drawGrid(){
   for(let i=-1;i<=cols;i++){
     gctx.beginPath();
     for(let j=-1;j<=rows;j++){
-      const sx=i*step+0, sy=j*step+0;
+      const sx=i*step, sy=j*step;
       let p=screenToWorldOnPlane(sx,sy,0);
       const dx=p.x-worldMouse.x, dy=p.y-worldMouse.y, r2=dx*dx+dy*dy+0.08;
       const k=0.18*mass/r2; p.x+=dx*k; p.y+=dy*k;
@@ -400,19 +422,28 @@ exposureEl.addEventListener('input',()=>nebMat.uniforms.uExposure.value=uni.uExp
 massEl.addEventListener('input',()=>baseMass=parseFloat(massEl.value));
 speedEl.addEventListener('input',()=>uni.uSpeed.value=parseFloat(speedEl.value));
 
-/* Numbers */
-function countUp(el,to,dur=1.4,decimals=null){
-  const start=performance.now(), from=0, fmt=(v)=>decimals===null?Math.floor(v):v.toFixed(decimals);
-  const target=parseFloat(to);
-  function step(t){ const p=Math.min(1,(t-start)/(dur*1000)); const v=from+(target-from)*p; el.textContent=fmt(v); if(p<1) requestAnimationFrame(step); }
-  requestAnimationFrame(step);
+/* Reveal animations — lazy-load GSAP/ScrollTrigger when idle */
+function initRevealsWithGSAP(gsap,ScrollTrigger){
+  gsap.registerPlugin(ScrollTrigger);
+  document.querySelectorAll('.section').forEach(sec=>{
+    const cards=[...sec.querySelectorAll('.card')];
+    const tl=gsap.timeline({scrollTrigger:{trigger:sec,start:'top 78%',once:true}});
+    tl.from(sec.querySelector('.title'), {y:36,opacity:0,duration:0.6,ease:'power3.out'}, 0)
+      .from(sec.querySelector('.lead'),  {y:18,opacity:0,duration:0.6,ease:'power3.out'}, 0.05)
+      .from(cards, {y:22,autoAlpha:0,stagger:0.08,duration:0.4,ease:'power3.out'}, 0.1);
+  });
 }
-function runNumbersThenFade(){
-  const wrap=document.getElementById('nums'); if(!wrap) return;
-  wrap.querySelectorAll('span[data-to]').forEach(s=>{const to=s.dataset.to, d=(to.includes('.')?to.split('.')[1].length:null); countUp(s,to,1.6,d);});
-  setTimeout(()=>wrap.classList.add('fade'),2000);
+if ('requestIdleCallback' in window){
+  requestIdleCallback(async ()=>{
+    try{
+      const [{default:gsap},{default:ScrollTrigger}] = await Promise.all([
+        import("https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"),
+        import("https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js")
+      ]);
+      initRevealsWithGSAP(gsap,ScrollTrigger);
+    }catch(e){/* no-op fallback */}
+  });
 }
-ScrollTrigger.create({trigger:'#s-oss',start:'top 80%',once:true,onEnter:runNumbersThenFade});
 
 /* Certifications accordion */
 document.querySelectorAll('.card.cert').forEach(card=>{
@@ -420,29 +451,28 @@ document.querySelectorAll('.card.cert').forEach(card=>{
   card.addEventListener('click',()=>{ const list=card.querySelector('.items'); if(!list) return; list.toggleAttribute('hidden'); });
 });
 
-/* Section reveals */
-document.querySelectorAll('.section').forEach(sec=>{
-  const cards=[...sec.querySelectorAll('.card')];
-  const tl=gsap.timeline({scrollTrigger:{trigger:sec,start:'top 78%',once:true}});
-  tl.from(sec.querySelector('.title'), {y:36,opacity:0,duration:0.6,ease:'power3.out',immediateRender:false}, 0)
-    .from(sec.querySelector('.lead'),  {y:18,opacity:0,duration:0.6,ease:'power3.out',immediateRender:false}, 0.05)
-    .from(cards, {y:22,autoAlpha:0,filter:'blur(4px)',clearProps:'filter',stagger:0.08,duration:0.4,ease:'power3.out',immediateRender:false}, 0.1);
-});
-
-/* Animate loop */
+/* ===== Main loop with throttled 2D and visibility pause ===== */
 let t0=performance.now();
-requestAnimationFrame(function tick(){
+let running = true;
+document.addEventListener('visibilitychange', ()=> running = document.visibilityState==='visible');
+let last2D = 0, target2D = (quality==='high'? 1/60 : 1/30);
+
+function tick(){
+  if (!running){ requestAnimationFrame(tick); return; }
   const t=performance.now(),dt=(t-t0)/1000; t0=t;
   mass+=(baseMass-mass)*0.06; if(spike>0){mass+=0.5*spike; spike*=0.88;}
   const wm=new THREE.Vector3(worldMouse.x,worldMouse.y,mass);
   uni.uMouse.value.copy(wm); sUni.uMouse.value.copy(wm);
-  uni.uTime.value+= prefersReduced? dt*0.35: dt*0.6; sUni.uTime.value+= dt;
-  nebMat.uniforms.uTime.value+=dt; haloUni.uTime.value+=dt;
+  const timeScale = (prefersReduced ? 0.35 : (quality==='high'?0.6:0.5));
+  uni.uTime.value+= dt*timeScale; sUni.uTime.value+= dt; nebMat.uniforms.uTime.value+=dt; haloUni.uTime.value+=dt;
   renderer.render(scene,camera);
   renderer.autoClear=false; renderer.clearDepth(); renderer.render(overlay,cam2); renderer.autoClear=true;
-  drawField(); drawGrid();
+
+  const now = t/1000;
+  if (now - last2D >= target2D){ drawField(); drawGrid(); last2D = now; }
   requestAnimationFrame(tick);
-});
+}
+requestAnimationFrame(tick);
 
 /* Smoke test */
 setTimeout(()=>{ console.assert(scene.children.length>=3,'scene ok'); },300);
