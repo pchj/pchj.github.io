@@ -97,31 +97,60 @@
   #s-certs .card{ --tint: var(--accentC) }
   #s-about .card{ --tint: var(--accentD) }
 
-  .card.cert-group{cursor:default}
-
-  .cert-head{display:flex;align-items:center;gap:12px;margin:0 0 10px 0}
-  .cert-head .lead-sm{margin:0;color:var(--muted);font-size:12px;opacity:.85}
-  .cert-toggle{
-    all:unset; padding:10px 12px; border-radius:12px; cursor:pointer;
-    background:rgba(12,16,24,.55); border:1px solid var(--card-stroke);
-    color:#eaf2ff; font-weight:700;
+  .card.cert-group {cursor:default}
+  
+  .cert-head {
+    display:flex; align-items:center; gap:12px; margin:0 0 10px 0;
   }
-  .cert-toggle:focus-visible{outline:2px solid color-mix(in oklab, var(--accentC) 60%, #fff 0%)}
-
-  /* Corrected mapping: true = collapsed (hidden), false = expanded (visible) */
-  .cert-grid{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px;
-    transition:max-height .30s ease, opacity .20s ease; overflow:hidden;
+  .cert-head .lead-sm {
+    margin:0; color:var(--muted); font-size:12px; opacity:.85;
   }
-  .cert-group[data-collapsed="true"] .cert-grid{max-height:0; opacity:0; pointer-events:none}
-  .cert-group[data-collapsed="false"] .cert-grid{max-height:1200px; opacity:1}
+  
+  .cert-toggle {
+    all:unset;
+    padding:10px 12px;
+    border-radius:12px;
+    cursor:pointer;
+    background:rgba(12,16,24,.55);
+    border:1px solid var(--card-stroke);
+    color:#eaf2ff;
+    font-weight:700;
+  }
+  
+  /* Neutral focus outline (white/gray mix) */
+  .cert-toggle:focus-visible {
+    outline:2px solid color-mix(in oklab, #f5f5f5 70%, #222 30%);
+  }
+  
+  .cert-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:18px;
+    transition:max-height .30s ease, opacity .20s ease;
+    overflow:hidden;
+  }
+  .cert-group[data-collapsed="true"] .cert-grid {
+    max-height:0; opacity:0; pointer-events:none;
+  }
+  .cert-group[data-collapsed="false"] .cert-grid {
+    max-height:1200px; opacity:1;
+  }
   /* Fallback if attribute missing */
-  .cert-group:not([data-collapsed]) .cert-grid{max-height:1200px; opacity:1}
-
-  .panel{position:fixed;right:12px;top:58px;z-index:5;width:300px;background:rgba(10,14,20,.6);
-    border:1px solid rgba(255,255,255,.06);border-radius:12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-    padding:10px 12px;color:#dbe6ff;font-size:12px; display:none;
+  .cert-group:not([data-collapsed]) .cert-grid {
+    max-height:1200px; opacity:1;
   }
+  
+  .panel {
+    position:fixed; right:12px; top:58px; z-index:5; width:300px;
+    background:rgba(10,14,20,.6);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:12px;
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    padding:10px 12px;
+    color:#dbe6ff; font-size:12px; display:none;
+  }
+
   .panel.open{display:block}
   .panel h4{margin:0 0 6px 0;font-size:12px;font-weight:700;letter-spacing:.02em;opacity:.85}
   .row{display:grid;grid-template-columns:1fr 88px;gap:8px;align-items:center;margin:6px 0}
@@ -226,7 +255,7 @@
   <!-- visible by default; JS will keep in sync -->
   <div class="card cert-group" data-collapsed="false">
     <div class="cert-head">
-      <button class="cert-toggle" aria-expanded="true" aria-controls="cg-tracks">Certification Tracks</button>
+      <button class="cert-toggle" aria-expanded="true" aria-controls="cg-tracks">Certification Paths</button>
       <p class="lead-sm">Open to browse categories</p>
     </div>
     <div class="cert-grid" id="cg-tracks">
