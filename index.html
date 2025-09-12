@@ -9,41 +9,41 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&family=EB+Garamond:wght@600;700&display=swap" rel="stylesheet"/>
 <style>
   :root{
-    /* Base palette */
     --bg0:#05060a; --bg1:#0a0e18; --ink:#e8eef8; --muted:rgba(232,238,248,.72);
-    --accentA:#14d4bf; --accentB:#86a7ff; --accentC:#ea56ff; --accentD:#ffd460;
-    --pad:6%; --mega:clamp(2.6rem,8vw,7.4rem); --xl:clamp(1.05rem,2.2vw,1.3rem);
+    --accentA:#1fd3bf; --accentB:#7ea2ff; --accentC:#e565ff; --accentD:#ffd260;
+    --pad:6%; --mega:clamp(2.6rem,8vw,7.2rem); --xl:clamp(1.05rem,2.2vw,1.28rem);
 
-    /* Card glass tokens */
-    --glass-fill: rgba(14,20,28,.38);
-    --glass-ink: rgba(240,246,255,.92);
-    --glass-border: rgba(255,255,255,.12);
-    --glass-line: rgba(255,255,255,.06);
+    /* Card tokens (flat, modern, not glossy) */
+    --card-bg:rgba(14,20,28,.40);
+    --card-stroke:rgba(255,255,255,.10);
+    --card-stroke-hi:rgba(255,255,255,.20);
+    --card-shadow:0 8px 24px rgba(0,0,0,.35);
+    --card-radius:16px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
   body,h1,h2,h3,h4,h5,h6,p,ul{margin:0}
+
+  /* Dark galaxy gradient */
   body{
-    /* darker galaxy base with subtle multi-hue falloff */
     background:
-      radial-gradient(1400px 900px at 50% 45%, #0c1120 0%, #080c16 40%, var(--bg0) 70%),
-      radial-gradient(1200px 800px at 70% 80%, rgba(28,40,66,.24) 0%, rgba(3,4,10,0) 55%),
-      radial-gradient(1000px 700px at 20% 20%, rgba(24,54,60,.18) 0%, rgba(3,4,10,0) 50%),
+      radial-gradient(1400px 900px at 50% 44%, #0b1020 0%, #070b15 40%, var(--bg0) 72%),
+      radial-gradient(1100px 700px at 70% 78%, rgba(26,40,70,.22) 0%, rgba(3,4,10,0) 56%),
+      radial-gradient(900px 600px at 18% 22%, rgba(18,56,56,.16) 0%, rgba(3,4,10,0) 46%),
       #03040a;
     color:var(--ink);
     font:400 16px/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     overflow-x:hidden
   }
 
-  /* fixed layers */
+  /* fixed layers (non-blocking) */
   #gl,#field,#grid,.vignette,#clouds{position:fixed;inset:0;pointer-events:none}
   #gl,#field,#grid,#clouds{display:block;width:100vw;height:100vh}
   #gl{z-index:0} #field{z-index:1} #grid{z-index:1}
   .vignette{z-index:2;background:
-    radial-gradient(ellipse at 50% 50%,rgba(20,212,191,.04),transparent 42%),
+    radial-gradient(ellipse at 50% 50%,rgba(31,211,191,.04),transparent 42%),
     radial-gradient(ellipse at 50% 40%,transparent 0 58%,rgba(0,0,0,.96) 100%)}
-  /* CSS clouds (toggleable) */
-  #clouds{z-index:2;opacity:.4;mix-blend-mode:screen;transition:opacity .25s ease}
+  #clouds{z-index:2;opacity:.38;mix-blend-mode:screen;transition:opacity .25s ease}
   #clouds::before,#clouds::after{
     content:"";position:absolute;inset:-12%;
     background:
@@ -53,7 +53,7 @@
     filter: blur(18px);
     animation: drift 48s linear infinite;
   }
-  #clouds::after{animation-duration:62s;opacity:.8;transform:scale(1.15)}
+  #clouds::after{animation-duration:62s;opacity:.8;transform:scale(1.12)}
   @keyframes drift{to{transform:translate3d(2.5%,3%,0) rotate(.001turn)}}
   .clouds-off #clouds{opacity:0}
 
@@ -63,77 +63,72 @@
   h1.title{font-family:"EB Garamond",serif;font-weight:700;text-transform:uppercase;letter-spacing:-.01em;line-height:1.05;font-size:var(--mega)}
   .lead{font-size:var(--xl);max-width:860px;color:var(--muted)}
 
-  .cards{margin:4vh auto 2vh;max-width:1600px;padding:0 var(--pad);
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .cards{
+    margin:4vh auto 2vh;max-width:1600px;padding:0 var(--pad);
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px
+  }
 
-  /* -------- GLASSY CARDS -------- */
+  /* Modern cards */
   .card{
-    position:relative;overflow:hidden;border-radius:16px;
-    border:1px solid var(--glass-border);
-    background:
-      linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0) 60%) padding-box,
-      linear-gradient(180deg, var(--glass-fill), rgba(10,14,22,.52)) border-box;
-    box-shadow:
-      0 12px 24px rgba(0,0,0,.28),
-      inset 0 0 0 1px var(--glass-line);
-    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-    transform-style:preserve-3d;
-    transition:transform .25s ease, border-color .25s ease, max-height .3s ease, background .25s ease, box-shadow .25s ease;
-    max-height:144px; cursor:pointer;
+    position:relative;background:var(--card-bg);
+    border:1px solid var(--card-stroke); border-radius:var(--card-radius);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow:var(--card-shadow);
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
   }
-  /* Soft inner sheen */
-  .card::before{
-    content:""; position:absolute; inset:-1px;
-    background:
-      radial-gradient(120% 100% at 10% -10%, rgba(255,255,255,.16), rgba(255,255,255,0) 60%),
-      radial-gradient(80% 120% at 90% 110%, rgba(255,255,255,.06), rgba(255,255,255,0) 60%);
-    pointer-events:none; mix-blend-mode:screen;
-  }
-  /* Ambient glow ring */
+  .card:focus-visible{outline:2px solid color-mix(in oklab, var(--tint) 60%, #fff 0%)}
+  .card:hover{transform:translateY(-3px);border-color:var(--card-stroke-hi)}
+  /* gradient edge on hover only (subtle) */
   .card::after{
-    content:""; position:absolute; inset:-2px; border-radius:16px;
-    background: conic-gradient(from 220deg,
-      color-mix(in oklab, var(--tint) 30%, transparent) 0 25%,
-      transparent 25% 50%,
-      color-mix(in oklab, var(--tint) 22%, transparent) 50% 75%,
-      transparent 75% 100%);
-    filter: blur(18px); opacity:.22; z-index:-1;
+    content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(140deg,
+      color-mix(in oklab,var(--tint) 30%,transparent) 0%,
+      transparent 40% 60%,
+      color-mix(in oklab,var(--tint) 22%,transparent) 100%);
+    opacity:0;transition:opacity .18s ease;mask:linear-gradient(#000,#000) padding-box,linear-gradient(#000,#000) border-box;border:1px solid transparent;
   }
-  .card h3{margin:0 0 6px;font-size:18px;font-weight:700;color:var(--glass-ink)}
-  .card p{margin:0;font-size:14px;color:rgba(232,238,248,.78)}
+  .card:hover::after{opacity:.6}
 
-  /* Hover lift + tinted border */
-  .card:hover{ transform:translateY(-4px) }
-  .card:hover{ border-color: color-mix(in oklab, var(--tint) 35%, var(--glass-border)) }
-  .card.expanded{ max-height:720px }
+  .card h3{margin:16px 16px 6px;font-size:18px;font-weight:700}
+  .card p{margin:0 16px 16px;font-size:14px;color:rgba(232,238,248,.78)}
 
-  /* Section-specific tints */
+  /* Expandable pattern */
+  .card[data-expand]{
+    cursor:pointer;
+  }
+  .card[data-expand] .card-body{
+    max-height:0;overflow:hidden;transition:max-height .28s ease;
+  }
+  .card[data-expand].open .card-body{
+    max-height:520px;
+  }
+
+  /* Section tints */
   #s-intro .card{ --tint: var(--accentA) }
   #s-oss   .card{ --tint: var(--accentB) }
   #s-certs .card{ --tint: var(--accentC) }
   #s-about .card{ --tint: var(--accentD) }
 
-  /* Certifications: make the container NOT use generic card expand */
-  .card.cert-group{
-    max-height:none; cursor:default;
-  }
+  /* Certification container is not expandable */
+  .card.cert-group{cursor:default}
 
-  /* Certifications group (min/max) */
-  .cert-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  /* Certifications grid toggle */
+  .cert-head{display:flex;align-items:center;gap:12px;margin:0 0 10px 0}
   .cert-head .lead-sm{margin:0;color:var(--muted);font-size:12px;opacity:.85}
   .cert-toggle{
-    all:unset; padding:10px 12px; border-radius:10px; cursor:pointer;
-    background:rgba(10,14,22,.6); border:1px solid rgba(255,255,255,.10);
+    all:unset; padding:10px 12px; border-radius:12px; cursor:pointer;
+    background:rgba(12,16,24,.55); border:1px solid var(--card-stroke);
     color:#eaf2ff; font-weight:700;
   }
+  .cert-toggle:focus-visible{outline:2px solid color-mix(in oklab, var(--accentC) 60%, #fff 0%)}
   .cert-grid{
     display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px;
-    transition:max-height .35s ease, opacity .25s ease; overflow:hidden;
+    transition:max-height .30s ease, opacity .20s ease; overflow:hidden;
   }
-  .cert-group[data-collapsed="true"] .cert-grid{max-height:0; opacity:.0; pointer-events:none}
+  .cert-group[data-collapsed="true"] .cert-grid{max-height:0; opacity:0; pointer-events:none}
   .cert-group[data-collapsed="false"] .cert-grid{max-height:1200px; opacity:1}
 
-  /* Controls panel: hidden by default, toggle with button */
+  /* Control panel */
   .panel{position:fixed;right:12px;top:58px;z-index:5;width:300px;background:rgba(10,14,20,.6);
     border:1px solid rgba(255,255,255,.06);border-radius:12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     padding:10px 12px;color:#dbe6ff;font-size:12px; display:none;
@@ -142,9 +137,7 @@
   .panel h4{margin:0 0 6px 0;font-size:12px;font-weight:700;letter-spacing:.02em;opacity:.85}
   .row{display:grid;grid-template-columns:1fr 88px;gap:8px;align-items:center;margin:6px 0}
   .row input[type=range]{width:100%}
-  .row input[type=checkbox]{justify-self:end;transform:scale(1.15)}
-
-  /* Toggle button */
+  .row input[type=checkbox]{justify-self:end;transform:scale(1.1)}
   .panel-toggle{
     position:fixed; right:12px; top:12px; z-index:6;
     width:40px;height:40px;border-radius:10px;
@@ -154,11 +147,6 @@
     backdrop-filter: blur(8px);
   }
   .panel-toggle svg{width:20px;height:20px;opacity:.9}
-
-  .nums{display:flex;gap:28px;flex-wrap:wrap;margin-top:18px;opacity:1;transition:opacity .6s ease}
-  .num{font:800 40px/1 Inter,system-ui;color:#eaf2ff}
-  .num small{display:block;font:600 12px/1.2 Inter;color:var(--muted);margin-top:6px}
-  .nums.fade{opacity:0}
 
   @media (max-width:768px){
     h1.title{font-size:clamp(2.2rem,10vw,4.6rem)}
@@ -173,7 +161,7 @@
 <div class="vignette" aria-hidden="true"></div>
 <div id="clouds" aria-hidden="true"></div>
 
-<!-- Controls toggle -->
+<!-- Controls -->
 <button class="panel-toggle" id="panelToggle" aria-label="Toggle galaxy controls">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.64 5.64l2.12 2.12M16.24 16.24l2.12 2.12M5.64 18.36l2.12-2.12M16.24 7.76l2.12-2.12"/>
@@ -199,12 +187,27 @@
 
 <!-- 1) Intro: Data / Design / Discipline -->
 <section class="section" id="s-intro"><div class="inner">
-  <h1 class="title headerText">From Data to Meaning</h1>
+  <h1 class="title">From Data to Meaning</h1>
   <p class="lead">Paul C. Jung</p>
   <div class="cards">
-    <div class="card"><h3>Data</h3><p>Explore and find meaning.</p></div>
-    <div class="card"><h3>Design</h3><p>Transform by the facts.</p></div>
-    <div class="card"><h3>Discipline</h3><p>Learn. Test. Measure. Improve.</p></div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="intro-data">
+      <h3>Data</h3><p>Explore and find meaning.</p>
+      <div id="intro-data" class="card-body">
+        <p style="margin:0 16px 16px">Deterministic metrics, seeded demos, failure sims.</p>
+      </div>
+    </div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="intro-design">
+      <h3>Design</h3><p>Transform by the facts.</p>
+      <div id="intro-design" class="card-body">
+        <p style="margin:0 16px 16px">Systems visuals, latency budgets, humane defaults.</p>
+      </div>
+    </div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="intro-discipline">
+      <h3>Discipline</h3><p>Learn. Test. Measure. Improve.</p>
+      <div id="intro-discipline" class="card-body">
+        <p style="margin:0 16px 16px">Contracts, CI gates, perf & cost guardrails.</p>
+      </div>
+    </div>
   </div>
 </div></section>
 
@@ -213,14 +216,26 @@
   <h1 class="title">Open Source Projects</h1>
   <p class="lead">Blueprints that behave under load.</p>
   <div class="cards">
-    <div class="card"><h3>Streaming blueprints</h3><p>Kafka + Flink patterns. DLQs. Backpressure guards.</p></div>
-    <div class="card"><h3>delta-lab</h3><p>Delta/Iceberg playbooks. Compaction. Z-order.</p></div>
-    <div class="card"><h3>hl7-fhir-pipelines</h3><p>PHI routing. Policy as code. Schema tests.</p></div>
-    <div class="card"><h3>model.earth</h3><p>Open climate models, datasets, notebooks.</p></div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="oss-stream">
+      <h3>Streaming blueprints</h3><p>Kafka + Flink patterns.</p>
+      <div id="oss-stream" class="card-body"><p style="margin:0 16px 16px">DLQs, idempotence, backpressure guards.</p></div>
+    </div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="oss-delta">
+      <h3>delta-lab</h3><p>Delta/Iceberg playbooks.</p>
+      <div id="oss-delta" class="card-body"><p style="margin:0 16px 16px">Compaction, Z-order, metrics.</p></div>
+    </div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="oss-hl7">
+      <h3>hl7-fhir-pipelines</h3><p>Policy as code.</p>
+      <div id="oss-hl7" class="card-body"><p style="margin:0 16px 16px">PHI routing, schema tests.</p></div>
+    </div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="oss-model">
+      <h3>model.earth</h3><p>Open climate models.</p>
+      <div id="oss-model" class="card-body"><p style="margin:0 16px 16px">Datasets, notebooks.</p></div>
+    </div>
   </div>
 </div></section>
 
-<!-- 3) Certifications: Min/Max -->
+<!-- 3) Certifications -->
 <section class="section" id="s-certs"><div class="inner">
   <h1 class="title">Certifications</h1>
   <div class="card cert-group" data-collapsed="true">
@@ -229,31 +244,40 @@
       <p class="lead-sm">Open to browse categories</p>
     </div>
     <div class="cert-grid" id="cg-tracks">
-      <div class="card cert"><h3>Infrastructure</h3><p>AWS · Azure · GCP</p></div>
-      <div class="card cert"><h3>Databases</h3><p>PostgreSQL · SQL Server · Snowflake</p></div>
-      <div class="card cert"><h3>Analytics & BI</h3><p>Power BI · Tableau</p></div>
-      <div class="card cert"><h3>AI / ML</h3><p>Pipelines · MLOps</p></div>
-      <div class="card cert"><h3>ETL / Orchestration</h3><p>dbt · Airflow · ADF</p></div>
-      <div class="card cert"><h3>Streaming</h3><p>Kafka · Flink</p></div>
-      <div class="card cert"><h3>Security</h3><p>IAM · Encryption</p></div>
-      <div class="card cert"><h3>DevOps</h3><p>Terraform · CI/CD</p></div>
+      <div class="card"><h3>Infrastructure</h3><p>AWS · Azure · GCP</p></div>
+      <div class="card"><h3>Databases</h3><p>PostgreSQL · SQL Server · Snowflake</p></div>
+      <div class="card"><h3>Analytics & BI</h3><p>Power BI · Tableau</p></div>
+      <div class="card"><h3>AI / ML</h3><p>Pipelines · MLOps</p></div>
+      <div class="card"><h3>ETL / Orchestration</h3><p>dbt · Airflow · ADF</p></div>
+      <div class="card"><h3>Streaming</h3><p>Kafka · Flink</p></div>
+      <div class="card"><h3>Security</h3><p>IAM · Encryption</p></div>
+      <div class="card"><h3>DevOps</h3><p>Terraform · CI/CD</p></div>
     </div>
   </div>
 </div></section>
 
-<!-- 4) About Me -->
+<!-- 4) About -->
 <section class="section" id="s-about"><div class="inner">
   <h1 class="title">About Me</h1>
   <p class="lead">Resume · Blog · Ideas</p>
   <div class="cards">
-    <div class="card"><h3>Resume</h3><p>Madison, WI. NY mindset.</p></div>
-    <div class="card"><h3>Blog</h3><p>Opinionated guides.</p></div>
-    <div class="card"><h3>Ideas</h3><p>Entropy and musings.</p></div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="about-resume">
+      <h3>Resume</h3><p>Madison, WI. NY mindset.</p>
+      <div id="about-resume" class="card-body"><p style="margin:0 16px 16px">ATS-safe PDF + LaTeX.</p></div>
+    </div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="about-blog">
+      <h3>Blog</h3><p>Opinionated guides.</p>
+      <div id="about-blog" class="card-body"><p style="margin:0 16px 16px">Playbooks, postmortems.</p></div>
+    </div>
+    <div class="card" data-expand tabindex="0" role="button" aria-expanded="false" aria-controls="about-ideas">
+      <h3>Ideas</h3><p>Entropy and musings.</p>
+      <div id="about-ideas" class="card-body"><p style="margin:0 16px 16px">Design notes, sketches.</p></div>
+    </div>
   </div>
 </div></section>
 
 <script type="module">
-/* ---------- Quality tiers ---------- */
+/* -------- Settings / Quality -------- */
 const qsParam=new URLSearchParams(location.search).get('q');
 const isMobileUA=/Mobi|Android/i.test(navigator.userAgent||'');
 const devMem=navigator.deviceMemory||4, dpr=window.devicePixelRatio||1;
@@ -263,22 +287,29 @@ const prefersReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clampRatio=()=> (quality==='high'||quality==='ultra')?Math.min(dpr,2):1;
 const qSel=document.getElementById('quality'); if(qsParam && qSel) qSel.value=qsParam;
 
-/* ---------- Layout cache ---------- */
-let VW=0,VH=0; const gl=document.getElementById('gl'), field=document.getElementById('field'), grid=document.getElementById('grid');
+/* -------- Layout -------- */
+let VW=0,VH=0;
+const gl=document.getElementById('gl'), field=document.getElementById('field'), grid=document.getElementById('grid');
 const fctx=field.getContext('2d'), gctx=grid.getContext('2d');
 function cacheSize(){const r=gl.getBoundingClientRect(); VW=r.width|0; VH=r.height|0;}
 cacheSize(); addEventListener('resize', cacheSize, {passive:true});
 
-/* ---------- Cards expand (skip the cert-group container) ---------- */
-document.querySelectorAll('.cards > .card:not(.cert-group)').forEach(c=>{
-  c.addEventListener('click',()=>c.classList.toggle('expanded'));
+/* -------- Card expand (works, keyboard too) -------- */
+function toggleCard(el){
+  const open=el.classList.toggle('open');
+  el.setAttribute('aria-expanded', String(open));
+}
+document.querySelectorAll('.card[data-expand]').forEach(c=>{
+  c.addEventListener('click', e=>{
+    if(e.target.closest('.card-body a, button, input, select, textarea')) return;
+    toggleCard(c);
+  });
+  c.addEventListener('keydown', e=>{
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggleCard(c); }
+  });
 });
-/* Stop bubbling from any interactive control */
-document.addEventListener('click',e=>{
-  if(e.target.closest('.cert-toggle')) e.stopPropagation();
-},{capture:true});
 
-/* ---------- Certifications min/max ---------- */
+/* -------- Certs min/max -------- */
 document.querySelectorAll('.cert-group .cert-toggle').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const group = btn.closest('.cert-group');
@@ -288,18 +319,15 @@ document.querySelectorAll('.cert-group .cert-toggle').forEach(btn=>{
   });
 });
 
-/* ---------- Panel toggle ---------- */
+/* -------- Panel + Clouds -------- */
 const panel=document.getElementById('panel');
-const panelToggle=document.getElementById('panelToggle');
-panelToggle.addEventListener('click', ()=>panel.classList.toggle('open'));
-
-/* ---------- Clouds toggle ---------- */
+document.getElementById('panelToggle').addEventListener('click', ()=>panel.classList.toggle('open'));
 const cloudsToggle=document.getElementById('cloudsToggle');
 function setClouds(on){document.body.classList.toggle('clouds-off',!on);document.body.classList.toggle('clouds-on',on);}
-setClouds(true);
-cloudsToggle.addEventListener('change',e=>setClouds(e.target.checked));
+setClouds(true); cloudsToggle.addEventListener('change',e=>setClouds(e.target.checked));
+if(qSel){ qSel.addEventListener('change',()=>{quality=qSel.value==='auto'?(wantUltra?'ultra':(isMobileUA||devMem<=4?'med':'high')):qSel.value; hardReset();}); }
 
-/* ---------- Three.js ---------- */
+/* -------- Three.js field -------- */
 import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js";
 let renderer, scene, camera, overlay, cam2, objects=[];
 function initGL(){
@@ -311,7 +339,7 @@ function initGL(){
 function resizeGL(){renderer.setPixelRatio(clampRatio()); renderer.setSize(VW,VH,true); camera.aspect=(VW||1)/(VH||1); camera.updateProjectionMatrix();}
 new ResizeObserver(()=>{cacheSize(); size2D(); resizeGL();}).observe(gl);
 
-/* ---------- Nebula (deeper, not bright) ---------- */
+/* Nebula */
 function makeNebulaMaterial(){
   return new THREE.ShaderMaterial({
     transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
@@ -335,7 +363,7 @@ function makeNebulaMaterial(){
   });
 }
 
-/* ---------- Starfield (softer, cooler white with faint tint) ---------- */
+/* Starfield */
 function buildStarfield(count){
   const g=new THREE.BufferGeometry();
   const pos=new Float32Array(count*3), spd=new Float32Array(count), phi=new Float32Array(count);
@@ -359,7 +387,7 @@ function buildStarfield(count){
   const pts=new THREE.Points(g,mat); pts.userData={uni}; return pts;
 }
 
-/* ---------- Galaxy ---------- */
+/* Galaxy */
 function buildGalaxy(count){
   const geo=new THREE.InstancedBufferGeometry();
   geo.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
@@ -391,7 +419,7 @@ function buildGalaxy(count){
   const pts=new THREE.Points(geo,mat); pts.userData={uni}; return pts;
 }
 
-/* ---------- Cursor Halo (reduced count + tasteful color) ---------- */
+/* Cursor halo: fewer points, richer but dim */
 function buildHalo(count){
   const g=new THREE.BufferGeometry();
   const hPos=new Float32Array(count*2), hPhase=new Float32Array(count), hRad=new Float32Array(count);
@@ -400,7 +428,6 @@ function buildHalo(count){
   g.setAttribute('aPhase',new THREE.BufferAttribute(hPhase,1));
   g.setAttribute('aRad',new THREE.BufferAttribute(hRad,1));
   const uni={uTime:{value:0},uCursor:{value:new THREE.Vector2(0,0)},uScale:{value:1},uAspect:{value:1},
-             /* cooler triad, dimmed */
              uColorA:{value:new THREE.Vector3(.12,.82,1.)},
              uColorB:{value:new THREE.Vector3(.84,.46,1.)},
              uColorC:{value:new THREE.Vector3(.18,1.,.74)}};
@@ -413,43 +440,39 @@ function buildHalo(count){
   const pts=new THREE.Points(g,mat); pts.userData={uni}; return pts;
 }
 
-/* ---------- Build & sizing ---------- */
+/* Build */
 let nebula,starfield,galaxy,halo; const starCountEl=document.getElementById('starCount');
 function buildScene(){
   objects.length=0; scene.clear(); overlay.clear();
   nebula=new THREE.Mesh(new THREE.PlaneGeometry(40,22,1,1), makeNebulaMaterial()); nebula.position.z=-6; scene.add(nebula); objects.push({type:'neb',mat:nebula.material});
-  const BG=(prefersReduced?3000:(quality==='ultra'?28000:quality==='high'?18000:quality==='med'?6000:3800));
+  const BG=(prefersReduced?2800:(quality==='ultra'?24000:quality==='high'?16000:6000));
   starfield=buildStarfield(BG); scene.add(starfield); objects.push({type:'sf',mat:starfield.material,uni:starfield.userData.uni});
-  const CNT=(prefersReduced?6000:(quality==='ultra'?55000:quality==='high'?36000:14000));
+  const CNT=(prefersReduced?5400:(quality==='ultra'?50000:quality==='high'?32000:13000));
   if(starCountEl) starCountEl.textContent=CNT.toLocaleString();
   galaxy=buildGalaxy(CNT); scene.add(galaxy); objects.push({type:'gal',mat:galaxy.material,uni:galaxy.userData.uni});
-  /* Fewer cursor stars by default */
-  const HALO=(prefersReduced?120:(quality==='ultra'?600:quality==='high'?380:quality==='med'?180:150));
+  const HALO=(prefersReduced?110:(quality==='ultra'?520:quality==='high'?320:160));
   halo=buildHalo(HALO); overlay.add(halo); objects.push({type:'halo',mat:halo.material,uni:halo.userData.uni});
 }
 function size2D(){const pr=clampRatio(); field.width=VW*pr; field.height=VH*pr; fctx.setTransform(pr,0,0,pr,0,0); grid.width=VW*pr; grid.height=VH*pr; gctx.setTransform(pr,0,0,pr,0,0); if(halo) halo.userData.uni.uAspect.value=(VW||1)/(VH||1);}
 
-/* ---------- Cursor + scroll ---------- */
+/* Cursor + scroll */
 const worldMouse=new THREE.Vector2(0,0); let baseMass=.7,mass=.7,spike=0;
 function screenToWorldOnPlane(sx,sy,planeZ=0){const nx=(sx/VW)*2-1, ny=-(sy/VH)*2+1; const o=camera.position.clone(); const v=new THREE.Vector3(nx,ny,.5).unproject(camera); const d=v.sub(o).normalize(); const t=(planeZ-o.z)/d.z; return new THREE.Vector2(o.x+d.x*t,o.y+d.y*t);}
 addEventListener('pointermove',e=>{const r=gl.getBoundingClientRect(); const nx=((e.clientX-r.left)/r.width)*2-1, ny=-(((e.clientY-r.top)/r.height)*2-1); if(halo) halo.userData.uni.uCursor.value.set(nx,ny); worldMouse.copy(screenToWorldOnPlane(e.clientX-r.left,e.clientY-r.top,0));},{passive:true});
 addEventListener('click',()=>{spike=1;});
-function onScroll(){if(!halo) return; const p=Math.max(0,Math.min(1,scrollY/(document.documentElement.scrollHeight-innerHeight))); const a=halo.userData.uni.uColorA.value,b=halo.userData.uni.uColorB.value,c=halo.userData.uni.uColorC.value;
-  /* subtle hue drift on scroll, still dark */
-  a.set(.12+.35*p,.82-.2*p,1.-.18*p);
-  b.set(.84-.28*p,.46+.22*p,1.-.05*p);
-  c.set(.18+.14*p,1.-.18*p,.74+.06*p);
+function onScroll(){if(!halo) return; const p=Math.max(0,Math.min(1,scrollY/(document.documentElement.scrollHeight-innerHeight)));
+  const a=halo.userData.uni.uColorA.value,b=halo.userData.uni.uColorB.value,c=halo.userData.uni.uColorC.value;
+  a.set(.12+.35*p,.82-.2*p,1.-.18*p); b.set(.84-.28*p,.46+.22*p,1.-.05*p); c.set(.18+.14*p,1.-.18*p,.74+.06*p);
 } addEventListener('scroll',onScroll,{passive:true});
 
-/* ---------- Flow field + grid ---------- */
+/* 2D field + grid */
 let seeds=[];
-function seedFlow(){seeds.length=0; const n=prefersReduced?32:(quality==='ultra'?110:quality==='high'?88:56); for(let i=0;i<n;i++){const a=i/n*Math.PI*2,r=1+(i%2)*.22; seeds.push({x:Math.cos(a)*r,y:Math.sin(a)*r});}}
+function seedFlow(){seeds.length=0; const n=prefersReduced?30:(quality==='ultra'?100:quality==='high'?80:54); for(let i=0;i<n;i++){const a=i/n*Math.PI*2,r=1+(i%2)*.22; seeds.push({x:Math.cos(a)*r,y:Math.sin(a)*r});}}
 function fVec(x,y){const r2=Math.max(x*x+y*y,.0004),inv=1./Math.pow(r2,.75); let vx=-y*inv,vy=x*inv; const dx=x-worldMouse.x,dy=y-worldMouse.y,q2=dx*dx+dy*dy+.02; const bend=(quality==='high'||quality==='ultra')?.32:.26, pull=(quality==='high'||quality==='ultra')?.11:.08, grav=mass/q2; vx+=(-dy)*grav*bend + (-dx)*grav*pull; vy+=(dx)*grav*bend + (-dy)*grav*pull; return [vx,vy];}
 function toScreen(x,y){const v=new THREE.Vector3(x,y,0).project(camera); return [(v.x*.5+.5)*VW,(-v.y*.5+.5)*VH];}
 function drawField(){if(prefersReduced||document.visibilityState!=='visible') return; fctx.clearRect(0,0,VW,VH); fctx.globalCompositeOperation='lighter';
-  /* darker, varied palette */
-  const cols=['rgba(20,212,191,0.14)','rgba(120,180,255,0.12)','rgba(234,86,255,0.10)','rgba(255,212,96,0.07)'];
-  const steps=(quality==='ultra'?84:quality==='high'?68:46);
+  const cols=['rgba(31,211,191,0.14)','rgba(120,180,255,0.12)','rgba(229,101,255,0.10)','rgba(255,210,96,0.07)'];
+  const steps=(quality==='ultra'?80:quality==='high'?64:44);
   for(let k=0;k<seeds.length;k++){let x=seeds[k].x*(3.0+1.9*Math.sin((k*13.1)%6)), y=seeds[k].y*(1.9+1.3*Math.cos((k*7.7)%6)); let [sx,sy]=toScreen(x,y); fctx.beginPath(); fctx.moveTo(sx,sy);
     for(let i=0;i<steps;i++){const [vx,vy]=fVec(x,y); const [vx2,vy2]=fVec(x+vx*.01,y+vy*.01); x+=vx2*.02; y+=vy2*.02; [sx,sy]=toScreen(x,y); fctx.lineTo(sx,sy);} fctx.strokeStyle=cols[k%cols.length]; fctx.lineWidth=1; fctx.stroke();}
   fctx.globalCompositeOperation='source-over';}
@@ -457,32 +480,31 @@ function drawGrid(){if(document.visibilityState!=='visible') return; gctx.clearR
   for(let j=-1;j<=rows;j++){gctx.beginPath(); for(let i=-1;i<=cols;i++){const sx=i*step,sy=j*step; let p=screenToWorldOnPlane(sx,sy,0); const dx=p.x-worldMouse.x,dy=p.y-worldMouse.y,r2=dx*dx+dy*dy+.08; const k=((quality==='high'||quality==='ultra')?.22:.17)*mass/r2; p.x+=dx*k; p.y+=dy*k; const q=new THREE.Vector3(p.x,p.y,0).project(camera); const px=(q.x*.5+.5)*VW, py=(-q.y*.5+.5)*VH; if(i===-1) gctx.moveTo(px,py); else gctx.lineTo(px,py);} gctx.stroke();}
   for(let i=-1;i<=cols;i++){gctx.beginPath(); for(let j=-1;j<=rows;j++){const sx=i*step,sy=j*step; let p=screenToWorldOnPlane(sx,sy,0); const dx=p.x-worldMouse.x,dy=p.y-worldMouse.y,r2=dx*dx+dy*dy+.08; const k=((quality==='high'||quality==='ultra')?.22:.17)*mass/r2; p.x+=dx*k; p.y+=dy*k; const q=new THREE.Vector3(p.x,p.y,0).project(camera); const px=(q.x*.5+.5)*VW, py=(-q.y*.5+.5)*VH; if(j===-1) gctx.moveTo(px,py); else gctx.lineTo(px,py);} gctx.stroke();}}
 
-/* ---------- Controls ---------- */
+/* Controls */
 const exposureEl=document.getElementById('exposure'), massEl=document.getElementById('mass'), speedEl=document.getElementById('speed');
 exposureEl.addEventListener('input',()=>{const nb=objects.find(o=>o.type==='neb'); if(nb) nb.mat.uniforms.uExposure.value=parseFloat(exposureEl.value);});
 massEl.addEventListener('input',()=>baseMass=parseFloat(massEl.value));
 speedEl.addEventListener('input',()=>{const g=objects.find(o=>o.type==='gal'); if(g) g.uni.uSpeed.value=parseFloat(speedEl.value);});
-if(qSel){ qSel.addEventListener('change',()=>{quality=qSel.value==='auto'?(wantUltra?'ultra':(isMobileUA||devMem<=4?'med':'high')):qSel.value; hardReset();}); }
-
-/* ---------- Loop ---------- */
+/* Loop */
 let running=true; document.addEventListener('visibilitychange',()=>running=(document.visibilityState==='visible'));
 let t0=performance.now(), last2D=0; function target2D(){return (quality==='ultra'||quality==='high')?1/60:1/30;}
 function tick(){if(!running){requestAnimationFrame(tick);return;} const t=performance.now(), dt=(t-t0)/1000; t0=t;
   const massBias=(quality==='high'||quality==='ultra')?.22:0; mass+=(baseMass+massBias-mass)*.06; if(spike>0){mass+=.5*spike; spike*=.88;}
-  const wm=new THREE.Vector3(worldMouse.x,worldMouse.y,mass); const sf=objects.find(o=>o.type==='sf'); if(sf) sf.uni.uMouse.value.copy(wm); const g=objects.find(o=>o.type==='gal'); if(g) g.uni.uMouse.value.copy(wm);
-  const timeScale=(prefersReduced?.35:(quality==='ultra'?.68:quality==='high'?.58:.48)); if(g){g.uni.uTime.value+=dt*timeScale; g.uni.uHue.value=(g.uni.uHue.value+dt*.025)%1.;}
-  if(sf) sf.uni.uTime.value+=dt; const nb=objects.find(o=>o.type==='neb'); if(nb) nb.mat.uniforms.uTime.value+=dt; const h=objects.find(o=>o.type==='halo'); if(h) h.uni.uTime.value+=dt;
+  const wm=new THREE.Vector3(worldMouse.x,worldMouse.y,mass);
+  const sf=objects.find(o=>o.type==='sf'); if(sf) sf.uni.uMouse.value.copy(wm);
+  const g=objects.find(o=>o.type==='gal'); if(g){g.uni.uMouse.value.copy(wm); const timeScale=(prefersReduced?.35:(quality==='ultra'?.68:quality==='high'?.58:.48)); g.uni.uTime.value+=dt*timeScale; g.uni.uHue.value=(g.uni.uHue.value+dt*.025)%1.;}
+  const nb=objects.find(o=>o.type==='neb'); if(nb) nb.mat.uniforms.uTime.value+=dt; const h=objects.find(o=>o.type==='halo'); if(h) h.uni.uTime.value+=dt;
   renderer.render(scene,camera); renderer.autoClear=false; renderer.clearDepth(); renderer.render(overlay,cam2); renderer.autoClear=true;
   const now=t/1000; if(now-last2D>=target2D()){drawField(); drawGrid(); last2D=now;} requestAnimationFrame(tick);
 }
 
-/* ---------- Build & boot ---------- */
+/* Boot */
 function buildAll(){objects.length=0; scene.clear(); overlay.clear(); buildScene(); size2D(); seedFlow();}
 function hardReset(){initGL(); buildAll();}
 function initAll(){initGL(); buildAll(); requestAnimationFrame(tick);}
 initAll();
 
-/* ---------- Smoke ---------- */
+/* Smoke check */
 setTimeout(()=>{ console.assert(scene.children.length>=3,'scene ok'); },300);
 </script>
 </body>
