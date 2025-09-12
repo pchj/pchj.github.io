@@ -11,12 +11,11 @@
 
 <style>
   :root{
-    --t1:#11b3a7; /* deep teal */
-    --t2:#0e7490; /* deep cyan */
-    --t3:#f59e0b; /* amber */
-    --t4:#166534; /* forest */
+    /* randomized at runtime; safe defaults */
+    --t1:#11b3a7; --t2:#0e7490; --t3:#f59e0b; --t4:#166534;
+    --cloud1:rgba(20,184,166,.06); --cloud2:rgba(245,158,11,.05); --cloud3:rgba(34,197,94,.05);
+
     --bg0:#05060a; --bg1:#0a0e18; --ink:#e8eef8; --muted:rgba(232,238,248,.72);
-    --accentA:#1fd3bf; --accentB:#7ea2ff; --accentC:#e565ff; --accentD:#ffd260;
     --pad:6%; --mega:clamp(2.6rem,8vw,7.2rem); --xl:clamp(1.05rem,2.2vw,1.28rem);
     --card-bg:rgba(14,20,28,.40);
     --card-stroke:rgba(255,255,255,.10);
@@ -30,9 +29,9 @@
 
   body{
     background:
-      radial-gradient(1400px 900px at 50% 44%, #0b1020 0%, #070b15 40%, var(--bg0) 72%),
-      radial-gradient(1100px 700px at 70% 78%, rgba(26,40,70,.22) 0%, rgba(3,4,10,0) 56%),
-      radial-gradient(900px 600px at 18% 22%, rgba(18,56,56,.16) 0%, rgba(3,4,10,0) 46%),
+      radial-gradient(1400px 900px at 50% 44%, color-mix(in oklab, var(--t2) 10%, #0b1020) 0%, #070b15 40%, var(--bg0) 72%),
+      radial-gradient(1100px 700px at 70% 78%, color-mix(in oklab, var(--t1) 9%, transparent) 0%, rgba(3,4,10,0) 56%),
+      radial-gradient(900px 600px at 18% 22%, color-mix(in oklab, var(--t4) 8%, transparent) 0%, rgba(3,4,10,0) 46%),
       #03040a;
     color:var(--ink);
     font:400 16px/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -43,16 +42,16 @@
   #gl,#field,#grid,#clouds{display:block;width:100vw;height:100vh}
   #gl{z-index:0} #field{z-index:1} #grid{z-index:1}
   .vignette{z-index:2;background:
-    radial-gradient(ellipse at 50% 50%,rgba(31,211,191,.04),transparent 42%),
+    radial-gradient(ellipse at 50% 50%,color-mix(in oklab, var(--t1) 8%, transparent),transparent 42%),
     radial-gradient(ellipse at 50% 40%,transparent 0 58%,rgba(0,0,0,.96) 100%)}
-  #clouds{z-index:2;opacity:.38;mix-blend-mode:screen;transition:opacity .25s ease}
+  #clouds{z-index:2;opacity:.38;mix-blend-mode:screen;transition:opacity .25s ease;filter:saturate(1.15) brightness(1.05)}
   #clouds::before,#clouds::after{
     content:"";position:absolute;inset:-12%;
     background:
-      radial-gradient(1000px 700px at 22% 30%,rgba(122,164,255,.06),rgba(0,0,0,0) 60%),
-      radial-gradient(900px 600px at 78% 62%,rgba(200,140,255,.05),rgba(0,0,0,0) 65%),
-      radial-gradient(800px 500px at 38% 82%,rgba(140,255,214,.05),rgba(0,0,0,0) 60%);
-    filter: blur(18px);
+      radial-gradient(1000px 700px at 22% 30%,var(--cloud1),rgba(0,0,0,0) 60%),
+      radial-gradient(900px 600px at 78% 62%,var(--cloud2),rgba(0,0,0,0) 65%),
+      radial-gradient(800px 500px at 38% 82%,var(--cloud3),rgba(0,0,0,0) 60%);
+    filter: blur(18px) contrast(110%);
     animation: drift 48s linear infinite;
   }
   #clouds::after{animation-duration:62s;opacity:.8;transform:scale(1.12)}
@@ -102,48 +101,21 @@
   #s-about .card{ --tint: var(--t4) }
 
   .card.cert-group {cursor:default}
-  
-  .cert-head {
-    display:flex; align-items:center; gap:12px; margin:0 0 10px 0;
-  }
-  .cert-head .lead-sm {
-    margin:0; color:var(--muted); font-size:12px; opacity:.85;
-  }
-  
+  .cert-head {display:flex; align-items:center; gap:12px; margin:0 0 10px 0;}
+  .cert-head .lead-sm {margin:0; color:var(--muted); font-size:12px; opacity:.85;}
   .cert-toggle {
-    all:unset;
-    padding:10px 12px;
-    border-radius:12px;
-    cursor:pointer;
-    background:rgba(12,16,24,.55);
-    border:1px solid var(--card-stroke);
-    color:#eaf2ff;
-    font-weight:700;
+    all:unset; padding:10px 12px; border-radius:12px; cursor:pointer;
+    background:rgba(12,16,24,.55); border:1px solid var(--card-stroke); color:#eaf2ff; font-weight:700;
   }
-  
-  /* Neutral focus outline (white/gray mix) */
-  .cert-toggle:focus-visible {
-    outline:2px solid color-mix(in oklab, #f5f5f5 70%, #222 30%);
-  }
-  
+  .cert-toggle:focus-visible { outline:2px solid color-mix(in oklab, #f5f5f5 70%, #222 30%); }
   .cert-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-    gap:18px;
-    transition:max-height .30s ease, opacity .20s ease;
-    overflow:hidden;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px;
+    transition:max-height .30s ease, opacity .20s ease; overflow:hidden;
   }
-  .cert-group[data-collapsed="true"] .cert-grid {
-    max-height:0; opacity:0; pointer-events:none;
-  }
-  .cert-group[data-collapsed="false"] .cert-grid {
-    max-height:1200px; opacity:1;
-  }
-  /* Fallback if attribute missing */
-  .cert-group:not([data-collapsed]) .cert-grid {
-    max-height:1200px; opacity:1;
-  }
-  
+  .cert-group[data-collapsed="true"] .cert-grid { max-height:0; opacity:0; pointer-events:none; }
+  .cert-group[data-collapsed="false"] .cert-grid { max-height:1200px; opacity:1; }
+  .cert-group:not([data-collapsed]) .cert-grid { max-height:1200px; opacity:1; }
+
   .panel {
     position:fixed; right:12px; top:58px; z-index:5; width:300px;
     background:rgba(10,14,20,.6);
@@ -154,7 +126,6 @@
     padding:10px 12px;
     color:#dbe6ff; font-size:12px; display:none;
   }
-
   .panel.open{display:block}
   .panel h4{margin:0 0 6px 0;font-size:12px;font-weight:700;letter-spacing:.02em;opacity:.85}
   .row{display:grid;grid-template-columns:1fr 88px;gap:8px;align-items:center;margin:6px 0}
@@ -169,6 +140,12 @@
     backdrop-filter: blur(8px);
   }
   .panel-toggle svg{width:20px;height:20px;opacity:.9}
+
+  @media (prefers-contrast: more){
+    .card{ border-color: color-mix(in oklab, var(--tint) 35%, #fff 0%); }
+    .card::after{ opacity:.9; }
+    .card:focus-visible{ outline:3px solid color-mix(in oklab, var(--tint) 70%, #fff 0%); }
+  }
 
   @media (max-width:768px){
     h1.title{font-size:clamp(2.2rem,10vw,4.6rem)}
@@ -256,7 +233,6 @@
 
 <section class="section" id="s-certs"><div class="inner">
   <h1 class="title">Certifications</h1>
-  <!-- visible by default; JS will keep in sync -->
   <div class="card cert-group" data-collapsed="false">
     <div class="cert-head">
       <button class="cert-toggle" aria-expanded="true" aria-controls="cg-tracks">Certification Paths</button>
@@ -295,38 +271,93 @@
 </div></section>
 
 <script type="module">
-/* ---------- Theme tints: randomized per visit (no pink/purple/light blue) ---------- */
-(() => {
-  const themes = [
-    ['#14b8a6','#0d9488','#f59e0b','#4d7c0f'], // teal, deep teal, amber, olive
-    ['#059669','#10b981','#c97a36','#a16207'], // emerald, emerald, copper, bronze-amber
-    ['#0891b2','#0e7490','#b45309','#a16207'], // deep cyan, cyan-700, brown-orange, bronze-amber
-    ['#0ea5a6','#155e75','#b08968','#166534'], // aqua, deep slate-cyan, bronze, forest
-    ['#0f766e','#65a30d','#ca8a04','#14532d'], // jade, leaf, saffron, deep moss
-    ['#0d9488','#0e7490','#d4a017','#065f46'], // deep teal, cyan-700, gold, evergreen
-  ];
-  const rnd = (crypto?.getRandomValues
-    ? crypto.getRandomValues(new Uint32Array(1))[0]
-    : Math.floor(Math.random()*1e9));
-  const pick = themes[rnd % themes.length];
-  const r = document.documentElement.style;
-  r.setProperty('--t1', pick[0]);
-  r.setProperty('--t2', pick[1]);
-  r.setProperty('--t3', pick[2]);
-  r.setProperty('--t4', pick[3]);
-})();
+/* ===================== THEME ===================== */
+const THEMES = [
+  // teal + deep teal + amber + forest
+  {
+    cards:['#14b8a6','#0d9488','#f59e0b','#166534'],
+    haloTop:['#10b981','#14b8a6','#f59e0b'],
+    haloBot:['#22c55e','#f59e0b','#a3e635'],
+    galaxy:['#0ea5a6','#f59e0b','#22c55e'],
+    clouds:['rgba(20,184,166,.06)','rgba(245,158,11,.05)','rgba(34,197,94,.05)'],
+    field:['#1fd3bf','#0ea5a6','#22c55e','#f59e0b']
+  },
+  // jade + emerald + bronze + moss
+  {
+    cards:['#0f766e','#059669','#b08968','#14532d'],
+    haloTop:['#10b981','#0f766e','#ca8a04'],
+    haloBot:['#22c55e','#d97706','#84cc16'],
+    galaxy:['#0f766e','#ca8a04','#16a34a'],
+    clouds:['rgba(15,118,110,.06)','rgba(202,138,4,.05)','rgba(22,163,74,.05)'],
+    field:['#0ea5a6','#0f766e','#16a34a','#ca8a04']
+  },
+  // deep cyan + cyan-700 + brown-orange + bronze
+  {
+    cards:['#0891b2','#0e7490','#b45309','#a16207'],
+    haloTop:['#0ea5a6','#0891b2','#d97706'],
+    haloBot:['#22c55e','#ca8a04','#84cc16'],
+    galaxy:['#0e7490','#d97706','#16a34a'],
+    clouds:['rgba(8,145,178,.06)','rgba(202,138,4,.05)','rgba(34,197,94,.05)'],
+    field:['#0ea5a6','#0891b2','#16a34a','#f59e0b']
+  },
+  // aqua + slate-cyan + bronze + forest
+  {
+    cards:['#0ea5a6','#155e75','#b08968','#166534'],
+    haloTop:['#0ea5a6','#0ea5a6','#eab308'],
+    haloBot:['#22c55e','#f59e0b','#a3e635'],
+    galaxy:['#0ea5a6','#eab308','#22c55e'],
+    clouds:['rgba(14,165,166,.06)','rgba(234,179,8,.05)','rgba(22,163,74,.05)'],
+    field:['#14b8a6','#0ea5a6','#22c55e','#eab308']
+  },
+  // jade + leaf + saffron + deep moss
+  {
+    cards:['#0f766e','#65a30d','#ca8a04','#14532d'],
+    haloTop:['#16a34a','#65a30d','#f59e0b'],
+    haloBot:['#22c55e','#d97706','#a3e635'],
+    galaxy:['#0f766e','#f59e0b','#16a34a'],
+    clouds:['rgba(15,118,110,.06)','rgba(245,158,11,.05)','rgba(22,163,74,.05)'],
+    field:['#0ea5a6','#16a34a','#22c55e','#f59e0b']
+  },
+  // deep teal + cyan-700 + gold + evergreen
+  {
+    cards:['#0d9488','#0e7490','#d4a017','#065f46'],
+    haloTop:['#0d9488','#0e7490','#d4a017'],
+    haloBot:['#22c55e','#f59e0b','#84cc16'],
+    galaxy:['#0d9488','#d4a017','#16a34a'],
+    clouds:['rgba(13,148,136,.06)','rgba(212,160,23,.05)','rgba(22,163,74,.05)'],
+    field:['#0d9488','#0ea5a6','#16a34a','#d4a017']
+  }
+];
 
-/* ---------- Certifications toggle (single binding) ---------- */
+function hexToVec3(hex){
+  const h=hex.replace('#',''); const r=parseInt(h.slice(0,2),16)/255, g=parseInt(h.slice(2,4),16)/255, b=parseInt(h.slice(4,6),16)/255;
+  return {r,g,b,vec:new THREE.Vector3(r,g,b)};
+}
+function hexToRGBA(hex,a=.12){
+  const h=hex.replace('#',''); const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function lerp(a,b,t){return a+(b-a)*t}
+function lerpVec3(v1,v2,t){return new THREE.Vector3(lerp(v1.x,v2.x,t), lerp(v1.y,v2.y,t), lerp(v1.z,v2.z,t))}
+
+const qp = new URLSearchParams(location.search);
+const forced = qp.get('theme'); const idx = Number.isInteger(+forced) ? Math.max(0, Math.min(THEMES.length-1, +forced)) : null;
+const rnd = (crypto?.getRandomValues ? crypto.getRandomValues(new Uint32Array(1))[0] : Math.floor(Math.random()*1e9));
+const THEME = THEMES[(idx ?? (rnd % THEMES.length))];
+
+const rootStyle = document.documentElement.style;
+['--t1','--t2','--t3','--t4'].forEach((k,i)=>rootStyle.setProperty(k, THEME.cards[i]));
+rootStyle.setProperty('--cloud1', THEME.clouds[0]);
+rootStyle.setProperty('--cloud2', THEME.clouds[1]);
+rootStyle.setProperty('--cloud3', THEME.clouds[2]);
+
+/* ===================== CERT TOGGLE ===================== */
 (() => {
   const group = document.querySelector('.cert-group');
   const btn = group?.querySelector('.cert-toggle');
   if (!group || !btn) return;
-
-  // Ensure default
   if (!group.hasAttribute('data-collapsed')) group.setAttribute('data-collapsed','false');
   btn.setAttribute('aria-expanded', String(group.getAttribute('data-collapsed') === 'false'));
-
-  // Avoid duplicate bindings if this module runs twice
   if (!btn.dataset.bound) {
     btn.dataset.bound = '1';
     btn.addEventListener('click', () => {
@@ -337,7 +368,7 @@
   }
 })();
 
-/* -------- Settings / Quality -------- */
+/* ===================== SETTINGS ===================== */
 const qsParam=new URLSearchParams(location.search).get('q');
 const isMobileUA=/Mobi|Android/i.test(navigator.userAgent||'');
 const devMem=navigator.deviceMemory||4, dpr=window.devicePixelRatio||1;
@@ -347,30 +378,21 @@ const prefersReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clampRatio=()=> (quality==='high'||quality==='ultra')?Math.min(dpr,2):1;
 const qSel=document.getElementById('quality'); if(qsParam && qSel) qSel.value=qsParam;
 
-/* -------- Layout -------- */
+/* ===================== LAYOUT ===================== */
 let VW=0,VH=0;
 const gl=document.getElementById('gl'), field=document.getElementById('field'), grid=document.getElementById('grid');
 const fctx=field.getContext('2d'), gctx=grid.getContext('2d');
 function cacheSize(){const r=gl.getBoundingClientRect(); VW=r.width|0; VH=r.height|0;}
 cacheSize(); addEventListener('resize', cacheSize, {passive:true});
 
-/* -------- Card expand -------- */
-function toggleCard(el){
-  const open=el.classList.toggle('open');
-  el.setAttribute('aria-expanded', String(open));
-}
+/* ===================== CARD EXPAND ===================== */
+function toggleCard(el){const open=el.classList.toggle('open'); el.setAttribute('aria-expanded', String(open));}
 document.querySelectorAll('.card[data-expand]').forEach(c=>{
-  c.addEventListener('click', e=>{
-    const tgt = e.target;
-    if (tgt && tgt.closest && tgt.closest('.card-body a, button, input, select, textarea')) return;
-    toggleCard(c);
-  });
-  c.addEventListener('keydown', e=>{
-    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggleCard(c); }
-  });
+  c.addEventListener('click', e=>{const tgt = e.target; if (tgt && tgt.closest && tgt.closest('.card-body a, button, input, select, textarea')) return; toggleCard(c);});
+  c.addEventListener('keydown', e=>{if(e.key==='Enter' || e.key===' '){e.preventDefault(); toggleCard(c);}});
 });
 
-/* -------- Panel + Clouds -------- */
+/* ===================== PANEL + CLOUDS ===================== */
 const panel=document.getElementById('panel');
 document.getElementById('panelToggle').addEventListener('click', ()=>panel.classList.toggle('open'));
 const cloudsToggle=document.getElementById('cloudsToggle');
@@ -378,7 +400,7 @@ function setClouds(on){document.body.classList.toggle('clouds-off',!on);document
 setClouds(true); cloudsToggle.addEventListener('change',e=>setClouds(e.target.checked));
 if(qSel){ qSel.addEventListener('change',()=>{quality=qSel.value==='auto'?(wantUltra?'ultra':(isMobileUA||devMem<=4?'med':'high')):qSel.value; hardReset();}); }
 
-/* -------- Three.js field -------- */
+/* ===================== THREE ===================== */
 import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js";
 let renderer, scene, camera, overlay, cam2, objects=[];
 function initGL(){
@@ -390,7 +412,7 @@ function initGL(){
 function resizeGL(){renderer.setPixelRatio(clampRatio()); renderer.setSize(VW,VH,true); camera.aspect=(VW||1)/(VH||1); camera.updateProjectionMatrix();}
 new ResizeObserver(()=>{cacheSize(); size2D(); resizeGL();}).observe(gl);
 
-/* Nebula */
+/* ---------- Nebula (teal→amber, no purple) ---------- */
 function makeNebulaMaterial(){
   return new THREE.ShaderMaterial({
     transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
@@ -406,15 +428,15 @@ function makeNebulaMaterial(){
       float g=fbm(uv*1.2-vec2(t*.4,t*.2));
       float m=smoothstep(.62,.92,f)*.55+smoothstep(.68,.94,g)*.45;
       vec3 base=vec3(.015,.06,.12);
-      vec3 tint1=vec3(.12,.75,.62);
-      vec3 tint2=vec3(.62,.52,.95);
+      vec3 tint1=vec3(.10,.70,.58);  // teal
+      vec3 tint2=vec3(.98,.78,.32);  // amber
       vec3 col=mix(base, mix(tint1,tint2,.35), m);
       gl_FragColor=vec4(col*uExposure*.7, m*.32);
     }`
   });
 }
 
-/* Starfield */
+/* ---------- Starfield (near-white) ---------- */
 function buildStarfield(count){
   const g=new THREE.BufferGeometry();
   const pos=new Float32Array(count*3), spd=new Float32Array(count), phi=new Float32Array(count);
@@ -432,13 +454,13 @@ function buildStarfield(count){
       void main(){vec3 p=position; float ang=aSpeed*uTime*.15; float cs=cos(ang),sn=sin(ang); p.xy=mat2(cs,-sn,sn,cs)*p.xy;
       p.x+=uMouse.x*.06; p.y+=uMouse.y*.06; vTw=sin(uTime*.8+aPhi)*.5+.5; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.); gl_PointSize=1.+1.6*vTw;}`,
     fragmentShader:`precision mediump float; varying float vTw; void main(){vec2 uv=gl_PointCoord*2.-1.;
-      float d=dot(uv,uv); float a=smoothstep(1.,0.,d)*(.16+.2*vTw); vec3 c=mix(vec3(.72,.82,1.), vec3(.78,.86,1.), vTw);
+      float d=dot(uv,uv); float a=smoothstep(1.,0.,d)*(.16+.2*vTw); vec3 c=mix(vec3(.95,.97,.98), vec3(1.,1.,1.), vTw);
       gl_FragColor=vec4(c,a);} `
   });
   const pts=new THREE.Points(g,mat); pts.userData={uni}; return pts;
 }
 
-/* Galaxy */
+/* ---------- Galaxy (themeable) ---------- */
 function buildGalaxy(count){
   const geo=new THREE.InstancedBufferGeometry();
   geo.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
@@ -450,10 +472,11 @@ function buildGalaxy(count){
   geo.setAttribute('i_dir',new THREE.InstancedBufferAttribute(dir,1));
   geo.setAttribute('i_noise',new THREE.InstancedBufferAttribute(nz,1));
   geo.setAttribute('i_type',new THREE.InstancedBufferAttribute(typ,1));
+
+  const g1=hexToVec3(THEME.galaxy[0]).vec, g2=hexToVec3(THEME.galaxy[1]).vec, g3=hexToVec3(THEME.galaxy[2]).vec;
+
   const uni={uTime:{value:0},uMouse:{value:new THREE.Vector3(0,0,0)},uExposure:{value:.58},uSpeed:{value:.58},
-             uColors:{value:new THREE.Vector3(.45,.86,1.)},
-             uColors2:{value:new THREE.Vector3(.92,.52,1.)},
-             uColors3:{value:new THREE.Vector3(.20,1.,.78)},uHue:{value:0}};
+             uColors:{value:g1.clone()}, uColors2:{value:g2.clone()}, uColors3:{value:g3.clone()}, uHue:{value:0}};
   const vsh=`attribute float i_radius,i_theta0,i_dir,i_noise,i_type; uniform float uTime,uSpeed; uniform vec3 uMouse; varying float vR,vType,vTw;
   vec2 grav(vec2 p, vec2 q, float m){vec2 d=p-q; float r2=max(dot(d,d),.03); float inv=m/r2; vec2 tang=vec2(-d.y,d.x); return normalize(tang)*inv*.30 + normalize(-d)*inv*.09;}
   void main(){float r=i_radius; float omega=uSpeed*.58*inversesqrt(max(r,.0001)); omega*=mix(1.,.55,step(.5,i_type));
@@ -463,14 +486,14 @@ function buildGalaxy(count){
   const fsh=`precision mediump float; uniform vec3 uColors,uColors2,uColors3; uniform float uExposure,uHue; varying float vR,vType,vTw;
   vec3 hsv2rgb(vec3 c){vec3 p=abs(fract(c.xxx+vec3(0.,2./3.,1./3.))*6.-3.); return c.z*mix(vec3(1.), clamp(p-1.,0.,1.), c.y);}
   void main(){vec2 uv=gl_PointCoord*2.-1.; float d=dot(uv,uv); float core=smoothstep(1.,0.,d)*.54; float t=clamp(vR/6.,0.,1.);
-    vec3 c=mix(uColors,uColors2,smoothstep(0.,.6,t)); c=mix(c,uColors3,smoothstep(.35,1.,t)); c=mix(c,vec3(1.,.86,.62),step(.5,vType));
-    float h=fract(uHue+t*.10+vTw*.06); vec3 wash=hsv2rgb(vec3(h,.55,1.)); c=mix(c,wash,.28);
+    vec3 c=mix(uColors,uColors2,smoothstep(0.,.6,t)); c=mix(c,uColors3,smoothstep(.35,1.,t)); c=mix(c,vec3(1.,.90,.70),step(.5,vType));
+    float h=fract(uHue+t*.10+vTw*.06); vec3 wash=hsv2rgb(vec3(h,.25,1.)); c=mix(c,wash,.18);
     c*=uExposure; float g=clamp(vTw*3.6,0.,1.); c+=g*.3; gl_FragColor=vec4(c,core*(.58+.22*g));}`;
   const mat=new THREE.ShaderMaterial({vertexShader:vsh,fragmentShader:fsh,uniforms:uni,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
   const pts=new THREE.Points(geo,mat); pts.userData={uni}; return pts;
 }
 
-/* Cursor halo */
+/* ---------- Cursor halo (scroll-reactive) ---------- */
 function buildHalo(count){
   const g=new THREE.BufferGeometry();
   const hPos=new Float32Array(count*2), hPhase=new Float32Array(count), hRad=new Float32Array(count);
@@ -478,10 +501,11 @@ function buildHalo(count){
   g.setAttribute('aPos',new THREE.BufferAttribute(hPos,2));
   g.setAttribute('aPhase',new THREE.BufferAttribute(hPhase,1));
   g.setAttribute('aRad',new THREE.BufferAttribute(hRad,1));
+
+  const topA=hexToVec3(THEME.haloTop[0]).vec, topB=hexToVec3(THEME.haloTop[1]).vec, topC=hexToVec3(THEME.haloTop[2]).vec;
+
   const uni={uTime:{value:0},uCursor:{value:new THREE.Vector2(0,0)},uScale:{value:1},uAspect:{value:1},
-             uColorA:{value:new THREE.Vector3(.12,.82,1.)},
-             uColorB:{value:new THREE.Vector3(.84,.46,1.)},
-             uColorC:{value:new THREE.Vector3(.18,1.,.74)}};
+             uColorA:{value:topA.clone()}, uColorB:{value:topB.clone()}, uColorC:{value:topC.clone()}};
   const mat=new THREE.ShaderMaterial({uniforms:uni,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     vertexShader:`attribute vec2 aPos; attribute float aPhase,aRad; uniform vec2 uCursor; uniform float uScale,uAspect,uTime; varying float vA;
       void main(){float tw=sin(uTime*4.+aPhase)*.5+.5; vec2 base=normalize(aPos)*(0.07+aRad*.9); base.x*=uAspect; vec2 ndc=uCursor+base*uScale; gl_Position=vec4(ndc,0.,1.); gl_PointSize=1.6+2.8*tw; vA=tw; }`,
@@ -491,7 +515,7 @@ function buildHalo(count){
   const pts=new THREE.Points(g,mat); pts.userData={uni}; return pts;
 }
 
-/* Build */
+/* ===================== BUILD SCENE ===================== */
 let nebula,starfield,galaxy,halo; const starCountEl=document.getElementById('starCount');
 function buildScene(){
   objects.length=0; scene.clear(); overlay.clear();
@@ -506,23 +530,50 @@ function buildScene(){
 }
 function size2D(){const pr=clampRatio(); field.width=VW*pr; field.height=VH*pr; fctx.setTransform(pr,0,0,pr,0,0); grid.width=VW*pr; grid.height=VH*pr; gctx.setTransform(pr,0,0,pr,0,0); if(halo) halo.userData.uni.uAspect.value=(VW||1)/(VH||1);}
 
-/* Cursor + scroll */
+/* ===================== CURSOR + SCROLL ===================== */
 const worldMouse=new THREE.Vector2(0,0); let baseMass=.7,mass=.7,spike=0;
 function screenToWorldOnPlane(sx,sy,planeZ=0){const nx=(sx/VW)*2-1, ny=-(sy/VH)*2+1; const o=camera.position.clone(); const v=new THREE.Vector3(nx,ny,.5).unproject(camera); const d=v.sub(o).normalize(); const t=(planeZ-o.z)/d.z; return new THREE.Vector2(o.x+d.x*t,o.y+d.y*t);}
 addEventListener('pointermove',e=>{const r=gl.getBoundingClientRect(); const nx=((e.clientX-r.left)/r.width)*2-1, ny=-(((e.clientY-r.top)/r.height)*2-1); if(halo) halo.userData.uni.uCursor.value.set(nx,ny); worldMouse.copy(screenToWorldOnPlane(e.clientX-r.left,e.clientY-r.top,0));},{passive:true});
 addEventListener('click',()=>{spike=1;});
-function onScroll(){if(!halo) return; const p=Math.max(0,Math.min(1,scrollY/(document.documentElement.scrollHeight-innerHeight)));
-  const a=halo.userData.uni.uColorA.value,b=halo.userData.uni.uColorB.value,c=halo.userData.uni.uColorC.value;
-  a.set(.12+.35*p,.82-.2*p,1.-.18*p); b.set(.84-.28*p,.46+.22*p,1.-.05*p); c.set(.18+.14*p,1.-.18*p,.74+.06*p);
-} addEventListener('scroll',onScroll,{passive:true});
 
-/* 2D field + grid */
+const HALO_TOP = {
+  A: hexToVec3(THEME.haloTop[0]).vec, B: hexToVec3(THEME.haloTop[1]).vec, C: hexToVec3(THEME.haloTop[2]).vec
+};
+const HALO_BOT = {
+  A: hexToVec3(THEME.haloBot[0]).vec, B: hexToVec3(THEME.haloBot[1]).vec, C: hexToVec3(THEME.haloBot[2]).vec
+};
+const GAL_BASE = {
+  C1: hexToVec3(THEME.galaxy[0]).vec, C2: hexToVec3(THEME.galaxy[1]).vec, C3: hexToVec3(THEME.galaxy[2]).vec
+};
+const FIELD_COLS = THEME.field.map(h => hexToRGBA(h, .12));
+
+function onScroll(){
+  if(!halo || !galaxy) return;
+  const maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  const p = Math.max(0, Math.min(1, scrollY / maxScroll));
+
+  // Cursor colors ramp with scroll
+  const hUni = halo.userData.uni;
+  hUni.uColorA.value.copy( lerpVec3(HALO_TOP.A, HALO_BOT.A, p) );
+  hUni.uColorB.value.copy( lerpVec3(HALO_TOP.B, HALO_BOT.B, p) );
+  hUni.uColorC.value.copy( lerpVec3(HALO_TOP.C, HALO_BOT.C, p) );
+  hUni.uScale.value = 1 + 0.28*p; // subtle growth
+
+  // Galaxy warms slightly as you scroll
+  const gUni = galaxy.userData.uni;
+  gUni.uColors.value.copy( lerpVec3(GAL_BASE.C1, GAL_BASE.C1.clone().multiplyScalar(1.05), p) );
+  gUni.uColors2.value.copy( lerpVec3(GAL_BASE.C2, new THREE.Vector3(1.0,0.85,0.35), p*0.6) );
+  gUni.uColors3.value.copy( lerpVec3(GAL_BASE.C3, new THREE.Vector3(0.3,1.0,0.65), p*0.5) );
+}
+addEventListener('scroll',onScroll,{passive:true});
+
+/* ===================== 2D FIELD + GRID ===================== */
 let seeds=[];
 function seedFlow(){seeds.length=0; const n=prefersReduced?30:(quality==='ultra'?100:quality==='high'?80:54); for(let i=0;i<n;i++){const a=i/n*Math.PI*2,r=1+(i%2)*.22; seeds.push({x:Math.cos(a)*r,y:Math.sin(a)*r});}}
 function fVec(x,y){const r2=Math.max(x*x+y*y,.0004),inv=1./Math.pow(r2,.75); let vx=-y*inv,vy=x*inv; const dx=x-worldMouse.x,dy=y-worldMouse.y,q2=dx*dx+dy*dy+.02; const bend=(quality==='high'||quality==='ultra')?.32:.26, pull=(quality==='high'||quality==='ultra')?.11:.08, grav=mass/q2; vx+=(-dy)*grav*bend + (-dx)*grav*pull; vy+=(dx)*grav*bend + (-dy)*grav*pull; return [vx,vy];}
 function toScreen(x,y){const v=new THREE.Vector3(x,y,0).project(camera); return [(v.x*.5+.5)*VW,(-v.y*.5+.5)*VH];}
 function drawField(){if(prefersReduced||document.visibilityState!=='visible') return; fctx.clearRect(0,0,VW,VH); fctx.globalCompositeOperation='lighter';
-  const cols=['rgba(31,211,191,0.14)','rgba(120,180,255,0.12)','rgba(229,101,255,0.10)','rgba(255,210,96,0.07)'];
+  const cols=FIELD_COLS;
   const steps=(quality==='ultra'?80:quality==='high'?64:44);
   for(let k=0;k<seeds.length;k++){let x=seeds[k].x*(3.0+1.9*Math.sin((k*13.1)%6)), y=seeds[k].y*(1.9+1.3*Math.cos((k*7.7)%6)); let [sx,sy]=toScreen(x,y); fctx.beginPath(); fctx.moveTo(sx,sy);
     for(let i=0;i<steps;i++){const [vx,vy]=fVec(x,y); const [vx2,vy2]=fVec(x+vx*.01,y+vy*.01); x+=vx2*.02; y+=vy2*.02; [sx,sy]=toScreen(x,y); fctx.lineTo(sx,sy);} fctx.strokeStyle=cols[k%cols.length]; fctx.lineWidth=1; fctx.stroke();}
@@ -531,33 +582,36 @@ function drawGrid(){if(document.visibilityState!=='visible') return; gctx.clearR
   for(let j=-1;j<=rows;j++){gctx.beginPath(); for(let i=-1;i<=cols;i++){const sx=i*step,sy=j*step; let p=screenToWorldOnPlane(sx,sy,0); const dx=p.x-worldMouse.x,dy=p.y-worldMouse.y,r2=dx*dx+dy*dy+.08; const k=((quality==='high'||quality==='ultra')?.22:.17)*mass/r2; p.x+=dx*k; p.y+=dy*k; const q=new THREE.Vector3(p.x,p.y,0).project(camera); const px=(q.x*.5+.5)*VW, py=(-q.y*.5+.5)*VH; if(i===-1) gctx.moveTo(px,py); else gctx.lineTo(px,py);} gctx.stroke();}
   for(let i=-1;i<=cols;i++){gctx.beginPath(); for(let j=-1;j<=rows;j++){const sx=i*step,sy=j*step; let p=screenToWorldOnPlane(sx,sy,0); const dx=p.x-worldMouse.x,dy=p.y-worldMouse.y,r2=dx*dx+dy*dy+.08; const k=((quality==='high'||quality==='ultra')?.22:.17)*mass/r2; p.x+=dx*k; p.y+=dy*k; const q=new THREE.Vector3(p.x,p.y,0).project(camera); const px=(q.x*.5+.5)*VW, py=(-q.y*.5+.5)*VH; if(j===-1) gctx.moveTo(px,py); else gctx.lineTo(px,py);} gctx.stroke();}}
 
-/* Controls */
+/* ===================== CONTROLS ===================== */
 const exposureEl=document.getElementById('exposure'), massEl=document.getElementById('mass'), speedEl=document.getElementById('speed');
 exposureEl.addEventListener('input',()=>{const nb=objects.find(o=>o.type==='neb'); if(nb) nb.mat.uniforms.uExposure.value=parseFloat(exposureEl.value);});
 massEl.addEventListener('input',()=>baseMass=parseFloat(massEl.value));
 speedEl.addEventListener('input',()=>{const g=objects.find(o=>o.type==='gal'); if(g) g.uni.uSpeed.value=parseFloat(speedEl.value);});
 
-/* Loop */
+/* ===================== LOOP ===================== */
 let running=true; document.addEventListener('visibilitychange',()=>running=(document.visibilityState==='visible'));
 let t0=performance.now(), last2D=0; function target2D(){return (quality==='ultra'||quality==='high')?1/60:1/30;}
 function tick(){if(!running){requestAnimationFrame(tick);return;} const t=performance.now(), dt=(t-t0)/1000; t0=t;
   const massBias=(quality==='high'||quality==='ultra')?.22:0; mass+=(baseMass+massBias-mass)*.06; if(spike>0){mass+=.5*spike; spike*=.88;}
   const wm=new THREE.Vector3(worldMouse.x,worldMouse.y,mass);
   const sf=objects.find(o=>o.type==='sf'); if(sf) sf.uni.uMouse.value.copy(wm);
-  const g=objects.find(o=>o.type==='gal'); if(g){g.uni.uMouse.value.copy(wm); const timeScale=(prefersReduced?.35:(quality==='ultra'?.68:quality==='high'?.58:.48)); g.uni.uTime.value+=dt*timeScale; g.uni.uHue.value=(g.uni.uHue.value+dt*.025)%1.;}
+  const g=objects.find(o=>o.type==='gal'); if(g){g.uni.uMouse.value.copy(wm); const timeScale=(prefersReduced?.35:(quality==='ultra'?.68:quality==='high'?.58:.48)); g.uni.uTime.value+=dt*timeScale; g.uni.uHue.value=(g.uni.uHue.value+dt*.02)%1.;}
   const nb=objects.find(o=>o.type==='neb'); if(nb) nb.mat.uniforms.uTime.value+=dt; const h=objects.find(o=>o.type==='halo'); if(h) h.uni.uTime.value+=dt;
   renderer.render(scene,camera); renderer.autoClear=false; renderer.clearDepth(); renderer.render(overlay,cam2); renderer.autoClear=true;
   const now=t/1000; if(now-last2D>=target2D()){drawField(); drawGrid(); last2D=now;} requestAnimationFrame(tick);
 }
 
-/* Boot */
-function buildAll(){objects.length=0; scene.clear(); overlay.clear(); buildScene(); size2D(); seedFlow();}
+/* ===================== BOOT ===================== */
+function buildAll(){objects.length=0; scene.clear(); overlay.clear(); buildScene(); size2D(); seedFlow(); onScroll();}
 function hardReset(){initGL(); buildAll();}
 function initAll(){initGL(); buildAll(); requestAnimationFrame(tick);}
 initAll();
 
-/* Smoke check */
-setTimeout(()=>{ console.assert(scene.children.length>=3,'scene ok'); },300);
+/* ===================== SMOKE TESTS ===================== */
+setTimeout(()=>{ 
+  console.assert(scene.children.length>=3,'scene ok');
+  console.assert(getComputedStyle(document.documentElement).getPropertyValue('--t1').trim() !== '', 'theme set');
+},300);
 </script>
 </body>
 </html>
