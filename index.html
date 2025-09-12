@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&family=EB+Garamond:wght@600;700&display=swap" rel="stylesheet"/>
 <style>
-  :root{--bg0:#05060a;--bg1:#0a0e18;--ink:#e8eef8;--muted:rgba(232,238,248,.72);--accent:#14d4bf;--pad:6%;--mega:clamp(2.6rem,8vw,7.5rem);--xl:clamp(1.05rem,2.2vw,1.3rem)}
+  :root{--bg0:#05060a;--bg1:#0a0e18;--ink:#e8eef8;--muted:rgba(232,238,248,.72);--accent:#14d4bf;--pad:6%;--mega:clamp(2.6rem,8vw,7.2rem);--xl:clamp(1.05rem,2.2vw,1.3rem)}
   *{box-sizing:border-box}
   html,body{height:100%}
   body,h1,h2,h3,h4,h5,h6,p,ul{margin:0}
@@ -28,16 +28,15 @@
   .lead{font-size:var(--xl);max-width:860px;color:var(--muted)}
 
   .cards{margin:4vh auto 2vh;max-width:1600px;padding:0 var(--pad);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
-  .card{padding:18px 20px;border-radius:16px;background:rgba(12,16,22,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.06);box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .25s ease,border-color .25s ease;transform-style:preserve-3d}
-  @media (hover:hover){.card:hover{transform:translateY(-4px) rotateX(1.2deg) rotateY(1.2deg);}}
+  .card{padding:18px 20px;border-radius:16px;background:rgba(12,16,22,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.06);box-shadow:0 10px 30px rgba(0,0,0,.35);transform-style:preserve-3d;transition:transform .25s ease,border-color .25s ease,max-height .3s ease}
+  .card{max-height:144px;overflow:hidden;cursor:pointer}
+  .card.expanded{max-height:720px}
+  @media (hover:hover){.card:hover{transform:translateY(-4px) rotateX(1.1deg) rotateY(1.1deg)}}
   .card h3{margin:0 0 6px 0;font-size:18px;font-weight:700}
   .card p{margin:0;font-size:14px;color:var(--muted)}
-  .metric{display:flex;align-items:center;gap:10px;margin-top:10px}
-  .spark{width:96px;height:28px;display:inline-block}
-  .pill{display:inline-block;padding:4px 8px;border:1px solid rgba(255,255,255,.08);border-radius:999px;font-size:11px;opacity:.8}
 
   .panel{position:fixed;right:12px;top:12px;z-index:5;width:280px;background:rgba(10,14,20,.6);border:1px solid rgba(255,255,255,.06);border-radius:12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:10px 12px;color:#dbe6ff;font-size:12px}
-  .panel h4{margin:0 0 6px 0;font-size:12px;font-weight:700;letter-spacing:.02em;opacity:.8}
+  .panel h4{margin:0 0 6px 0;font-size:12px;font-weight:700;letter-spacing:.02em;opacity:.85}
   .row{display:grid;grid-template-columns:1fr 64px;gap:8px;align-items:center;margin:6px 0}
   .row input[type=range]{width:100%}
 
@@ -46,7 +45,6 @@
   .num small{display:block;font:600 12px/1.2 Inter;color:var(--muted);margin-top:6px}
   .nums.fade{opacity:0}
 
-  .footer{position:fixed;left:12px;bottom:12px;z-index:4;font-size:12px;color:var(--muted)}
   @media (max-width:768px){h1.title{font-size:clamp(2.2rem,10vw,4.6rem)}.panel{width:auto;left:12px;right:12px}}
 </style>
 </head>
@@ -64,17 +62,15 @@
   <div class="row"><label>Stars</label><span class="pill" id="starCount">—</span></div>
 </div>
 
-<section class="section" id="s-intro">
-  <div class="inner">
-    <h1 class="title headerText">From Data to Meaning</h1>
-    <p class="lead">Paul C. Jung</p>
-    <div class="cards">
-      <div class="card"><h3>Data</h3><p>Explore and find meaning.</p></div>
-      <div class="card"><h3>Design</h3><p>Transform by the facts.</p></div>
-      <div class="card"><h3>Discipline</h3><p>Learn. Test. Measure. Improve.</p></div>
-    </div>
+<section class="section" id="s-intro"><div class="inner">
+  <h1 class="title headerText">From Data to Meaning</h1>
+  <p class="lead">Paul C. Jung</p>
+  <div class="cards">
+    <div class="card"><h3>Data</h3><p>Explore and find meaning.</p></div>
+    <div class="card"><h3>Design</h3><p>Transform by the facts.</p></div>
+    <div class="card"><h3>Discipline</h3><p>Learn. Test. Measure. Improve.</p></div>
   </div>
-</section>
+</div></section>
 
 <section class="section" id="s-oss"><div class="inner">
   <h1 class="title">Open Source</h1>
@@ -139,97 +135,103 @@
 </div></section>
 
 <script type="module">
-/* ===== Config / quality gating ===== */
-const UA = navigator.userAgent||'';
-const isMobileUA = /Mobi|Android/i.test(UA);
-const qs = new URLSearchParams(location.search).get('q'); // low | med | high
-const quality = qs==='low' ? 'low' : qs==='high' ? 'high' : (isMobileUA ? 'med' : 'high');
-const clampRatio = () => quality==='high' ? Math.min(window.devicePixelRatio||1,2) : 1;
+/* ========= Quality & metrics ========= */
+const qs = new URLSearchParams(location.search).get('q'); // low|med|high
+const isMobileUA = /Mobi|Android/i.test(navigator.userAgent||'');
+const devMem = (navigator.deviceMemory||4);
+const quality = qs==='low' ? 'low' : qs==='high' ? 'high' : (isMobileUA || devMem<=4 ? 'med' : 'high');
 const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clampRatio = () => quality==='high' ? Math.min(window.devicePixelRatio||1, 2) : 1;
 
-/* ===== Counters via IntersectionObserver (no GSAP required) ===== */
-const numsWrap = document.getElementById('nums');
-if (numsWrap) {
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if (!e.isIntersecting) return;
-      numsWrap.querySelectorAll('span[data-to]').forEach(s=>{
-        const to = parseFloat(s.dataset.to);
-        const decimals = (s.dataset.to.includes('.') ? s.dataset.to.split('.')[1].length : null);
-        const start = performance.now(), dur = 1600, from=0;
-        const fmt = v => decimals==null ? Math.floor(v) : v.toFixed(decimals);
-        const step = (t)=>{ const p=Math.min(1,(t-start)/dur); s.textContent=fmt(from+(to-from)*p); if(p<1) requestAnimationFrame(step); };
-        requestAnimationFrame(step);
-      });
-      setTimeout(()=>numsWrap.classList.add('fade'), 2000);
-      io.disconnect();
-    });
-  },{threshold:0.2});
-  io.observe(numsWrap);
-}
-
-/* ===== 2D/3D setup ===== */
-import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js";
-
-const exposureEl = document.getElementById('exposure');
-const massEl = document.getElementById('mass');
-const speedEl = document.getElementById('speed');
+/* ========= Layout cache (eliminates forced reflow) ========= */
+let VW=0,VH=0;
 const gl = document.getElementById('gl');
 const field = document.getElementById('field');
 const grid = document.getElementById('grid');
 const fctx = field.getContext('2d');
 const gctx = grid.getContext('2d');
+function cacheSize(){
+  const r = gl.getBoundingClientRect();
+  VW = (r.width|0); VH = (r.height|0);
+}
+cacheSize(); addEventListener('resize', cacheSize, {passive:true});
 
-const renderer = new THREE.WebGLRenderer({ canvas: gl, antialias:false, alpha:true, powerPreference:'high-performance' });
-renderer.setClearColor(0x000000, 0);
+/* ========= Numbers: light, no GSAP ========= */
+(function(){
+  const wrap=document.getElementById('nums'); if(!wrap) return;
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(!e.isIntersecting) return;
+      wrap.querySelectorAll('span[data-to]').forEach(s=>{
+        const to=parseFloat(s.dataset.to); const dec=(s.dataset.to.includes('.')?s.dataset.to.split('.')[1].length:null);
+        const t0=performance.now(); const dur=1600;
+        (function step(t){ const p=Math.min(1,(t-t0)/dur); const v=to*p; s.textContent= dec==null?Math.floor(v):v.toFixed(dec); if(p<1) requestAnimationFrame(step); })(t0);
+      });
+      setTimeout(()=>wrap.classList.add('fade'),2000);
+      io.disconnect();
+    });
+  },{threshold:0.2});
+  io.observe(wrap);
+})();
+
+/* ========= Click-to-expand (all cards) ========= */
+document.querySelectorAll('.card').forEach(c=>{
+  c.addEventListener('click',()=>{
+    if(c.classList.contains('cert')){ const list=c.querySelector('.items'); if(list) list.toggleAttribute('hidden'); return; }
+    c.classList.toggle('expanded');
+  });
+});
+
+/* ========= WebGL scene (Three.js) ========= */
+import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js";
+
+const renderer = new THREE.WebGLRenderer({canvas:gl,antialias:false,alpha:true,powerPreference:'high-performance'});
+renderer.setClearColor(0x000000,0);
 renderer.setPixelRatio(clampRatio());
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 400);
-camera.position.set(0,0,8);
+const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 400); camera.position.set(0,0,8);
 
-function resize() {
-  const r = gl.getBoundingClientRect();
-  const w = Math.max(1, Math.round(r.width));
-  const h = Math.max(1, Math.round(r.height));
+function resizeGL(){
   renderer.setPixelRatio(clampRatio());
-  renderer.setSize(w, h, true);
-  camera.aspect = w / h;
+  renderer.setSize(VW,VH,true);
+  camera.aspect = (VW||1)/(VH||1);
   camera.updateProjectionMatrix();
 }
-resize();
-addEventListener('resize', resize, { passive:true });
-new ResizeObserver(resize).observe(gl);
+resizeGL();
+new ResizeObserver(()=>{cacheSize(); size2D(); resizeGL();}).observe(gl);
 
-/* ===== Nebula (shader plane) with mobile/desktop octaves ===== */
-function makeNebulaMaterial(octaves){
+/* ===== Nebula material (mobile octaves) ===== */
+function makeNebulaMaterial(oct){
   return new THREE.ShaderMaterial({
     transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
     uniforms:{uTime:{value:0},uExposure:{value:0.55}},
     vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-    fragmentShader:`precision mediump float; varying vec2 vUv; uniform float uTime, uExposure;
+    fragmentShader:`precision mediump float; varying vec2 vUv; uniform float uTime,uExposure;
       float n(vec2 p){ return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5453); }
-      float sm(vec2 p){ vec2 i=floor(p), f=fract(p); float a=n(i), b=n(i+vec2(1,0)), c=n(i+vec2(0,1)), d=n(i+vec2(1,1));
-        vec2 u=f*f*(3.0-2.0*f); return mix(a,b,u.x)+ (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y; }
-      float fbm(vec2 p){ float v=0.0; float a=0.5; for(int i=0;i<${octaves};i++){ v+=a*sm(p); p*=2.1; a*=0.55; } return v; }
+      float sm(vec2 p){ vec2 i=floor(p), f=fract(p);
+        float a=n(i), b=n(i+vec2(1,0)), c=n(i+vec2(0,1)), d=n(i+vec2(1,1));
+        vec2 u=f*f*(3.0-2.0*f);
+        return mix(a,b,u.x)+ (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
+      }
+      float fbm(vec2 p){ float v=0.0; float a=0.5; for(int i=0;i<${oct};i++){ v+=a*sm(p); p*=2.1; a*=0.55; } return v; }
       void main(){
         vec2 uv=vUv*2.0; float t=uTime*0.03;
-        float f=fbm(uv*3.0 + vec2(t, -t*0.7));
+        float f=fbm(uv*3.0 + vec2(t,-t*0.7));
         float g=fbm(uv*1.2 - vec2(t*0.4, t*0.2));
-        float m=smoothstep(0.55,0.9,f) * 0.6 + smoothstep(0.65,0.92,g)*0.4;
+        float m=smoothstep(0.55,0.9,f)*0.6 + smoothstep(0.65,0.92,g)*0.4;
         vec3 col=mix(vec3(0.02,0.10,0.18), vec3(0.10,0.75,0.62), m);
         col+= vec3(0.85,0.55,1.0)*pow(m,3.0)*0.35;
         gl_FragColor=vec4(col*uExposure*0.7, m*0.35);
       }`
   });
 }
-const nebMat = makeNebulaMaterial(quality==='high' ? 5 : 3);
+const nebMat = makeNebulaMaterial(quality==='high'?5:3);
 const nebula = new THREE.Mesh(new THREE.PlaneGeometry(40,22,1,1), nebMat);
-nebula.position.z=-6.0;
-scene.add(nebula);
+nebula.position.z=-6.0; scene.add(nebula);
 
-/* ===== Background starfield (density by quality) ===== */
-const BG_COUNT = (quality==='high') ? 16000 : (quality==='med' ? 6000 : 4000);
+/* ===== Starfield (density by quality) ===== */
+const BG_COUNT = prefersReduced? 3000 : (quality==='high'?16000:(quality==='med'?6000:4000));
 const sGeom = new THREE.BufferGeometry();
 const sPos = new Float32Array(BG_COUNT*3);
 const sSpd = new Float32Array(BG_COUNT);
@@ -237,44 +239,43 @@ const sPhi = new Float32Array(BG_COUNT);
 for(let i=0;i<BG_COUNT;i++){
   const r = 38 + Math.random()*44;
   const t = Math.acos(2*Math.random()-1), p = Math.random()*Math.PI*2;
-  sPos[i*3] = r*Math.sin(t)*Math.cos(p);
+  sPos[i*3]   = r*Math.sin(t)*Math.cos(p);
   sPos[i*3+1] = r*Math.sin(t)*Math.sin(p);
   sPos[i*3+2] = r*Math.cos(t);
-  sSpd[i] = 0.02 + Math.random()*0.06;
-  sPhi[i] = Math.random()*Math.PI*2;
+  sSpd[i]     = 0.02 + Math.random()*0.06;
+  sPhi[i]     = Math.random()*Math.PI*2;
 }
 sGeom.setAttribute('position', new THREE.BufferAttribute(sPos,3));
 sGeom.setAttribute('aSpeed', new THREE.BufferAttribute(sSpd,1));
 sGeom.setAttribute('aPhi',   new THREE.BufferAttribute(sPhi,1));
 const sUni = { uTime:{value:0}, uMouse:{value:new THREE.Vector3(0,0,0)} };
-const starfield = new THREE.Points(
-  sGeom,
-  new THREE.ShaderMaterial({
-    uniforms:sUni, transparent:true, depthWrite:false,
-    vertexShader:`
-      attribute float aSpeed, aPhi; uniform float uTime; uniform vec3 uMouse; varying float vTw;
-      void main(){
-        vec3 p = position;
-        float ang = aSpeed * uTime * 0.15;
-        float cs = cos(ang), sn = sin(ang);
-        p.xy = mat2(cs,-sn,sn,cs) * p.xy;
-        p.x += (uMouse.x)*0.06; p.y += (uMouse.y)*0.06;
-        vTw = sin(uTime*0.8 + aPhi)*0.5+0.5;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(p,1.0);
-        gl_PointSize = 1.0 + 1.6*vTw;
-      }`,
-    fragmentShader:`
-      precision mediump float; varying float vTw;
-      void main(){ vec2 uv = gl_PointCoord*2.0-1.0; float d = dot(uv,uv);
-        float a = smoothstep(1.0, 0.0, d) * (0.18 + 0.22*vTw);
-        gl_FragColor = vec4(0.72,0.82,1.0, a);
-      }`
-  })
-);
+const starfield = new THREE.Points(sGeom, new THREE.ShaderMaterial({
+  uniforms:sUni, transparent:true, depthWrite:false,
+  vertexShader:`
+    attribute float aSpeed, aPhi; uniform float uTime; uniform vec3 uMouse; varying float vTw;
+    void main(){
+      vec3 p = position;
+      float ang = aSpeed * uTime * 0.15;
+      float cs = cos(ang), sn = sin(ang);
+      p.xy = mat2(cs,-sn,sn,cs) * p.xy;
+      p.x += (uMouse.x)*0.06; p.y += (uMouse.y)*0.06;
+      vTw = sin(uTime*0.8 + aPhi)*0.5+0.5;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(p,1.0);
+      gl_PointSize = 1.0 + 1.6*vTw;
+    }`,
+  fragmentShader:`
+    precision mediump float; varying float vTw;
+    void main(){ vec2 uv = gl_PointCoord*2.0-1.0; float d = dot(uv,uv);
+      float a = smoothstep(1.0, 0.0, d) * (0.18 + 0.22*vTw);
+      gl_FragColor = vec4(0.72,0.82,1.0, a);
+    }`
+}));
 scene.add(starfield);
 
-/* ===== Galaxy points (density by quality / reduced motion) ===== */
-const COUNT = prefersReduced ? 8000 : (quality==='high' ? 32000 : 16000);
+/* ===== Galaxy points ===== */
+const COUNT = prefersReduced ? 7000 : (quality==='high'?32000:16000);
+document.getElementById('starCount').textContent = COUNT.toLocaleString();
+
 const geo=new THREE.InstancedBufferGeometry();
 geo.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0],3));
 geo.instanceCount=COUNT;
@@ -285,7 +286,6 @@ geo.setAttribute('i_theta0',new THREE.InstancedBufferAttribute(th0,1));
 geo.setAttribute('i_dir',new THREE.InstancedBufferAttribute(dir,1));
 geo.setAttribute('i_noise',new THREE.InstancedBufferAttribute(nz,1));
 geo.setAttribute('i_type',new THREE.InstancedBufferAttribute(typ,1));
-document.getElementById('starCount').textContent=COUNT.toLocaleString();
 
 const uni={uTime:{value:0},uMouse:{value:new THREE.Vector3(0,0,0)},uExposure:{value:0.55},uSpeed:{value:0.6},
            uColors:{value:new THREE.Vector3(0.45,0.86,1.00)},uColors2:{value:new THREE.Vector3(0.92,0.45,1.00)},uColors3:{value:new THREE.Vector3(0.12,1.00,0.78)}};
@@ -297,61 +297,58 @@ const fsh=`
 precision mediump float; uniform vec3 uColors,uColors2,uColors3; uniform float uExposure; varying float vR,vType,vTw; void main(){ vec2 uv=gl_PointCoord*2.0-1.0; float d=dot(uv,uv); float core=smoothstep(1.0,0.0,d)*0.55; float t=clamp(vR/6.0,0.0,1.0); vec3 c=mix(uColors,uColors2,smoothstep(0.0,0.6,t)); c=mix(c,uColors3,smoothstep(0.35,1.0,t)); c=mix(c,vec3(1.0,0.85,0.55),step(0.5,vType)); c*=uExposure; float g=clamp(vTw*4.0,0.0,1.0); c+=g*0.35; gl_FragColor=vec4(c,core*(0.6+0.25*g)); }`.trim();
 scene.add(new THREE.Points(geo,new THREE.ShaderMaterial({vertexShader:vsh,fragmentShader:fsh,uniforms:uni,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));
 
-/* ===== Cursor & overlay halo ===== */
+/* ===== Overlay halo points with vibrant scroll color ===== */
 const overlay = new THREE.Scene();
 const cam2 = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
-const HALO = (quality==='high') ? 700 : (quality==='med' ? 260 : 200);
+const HALO = prefersReduced? 180 : (quality==='high'?700:(quality==='med'?260:200));
 const haloGeo = new THREE.BufferGeometry();
 const hPos = new Float32Array(HALO*2), hPhase = new Float32Array(HALO), hRad = new Float32Array(HALO);
 for(let i=0;i<HALO;i++){ const a=Math.random()*Math.PI*2; hPos[i*2]=Math.cos(a); hPos[i*2+1]=Math.sin(a); hPhase[i]=Math.random()*Math.PI*2; hRad[i]=0.006 + Math.random()*0.06; }
 haloGeo.setAttribute('aPos',   new THREE.BufferAttribute(hPos,2));
 haloGeo.setAttribute('aPhase', new THREE.BufferAttribute(hPhase,1));
 haloGeo.setAttribute('aRad',   new THREE.BufferAttribute(hRad,1));
-const haloUni = { uTime:{value:0}, uCursor:{value:new THREE.Vector2(0,0)}, uScale:{value:1.0}, uAspect:{value:1.0} };
-const haloPoints = new THREE.Points(
-  haloGeo,
-  new THREE.ShaderMaterial({
-    uniforms: haloUni, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
-    vertexShader:`
-      attribute vec2 aPos; attribute float aPhase, aRad;
-      uniform vec2 uCursor; uniform float uScale, uAspect, uTime; varying float vTw;
-      void main(){
-        float tw = sin(uTime*4.0 + aPhase)*0.5 + 0.5;
-        vec2 base = normalize(aPos) * (0.08 + aRad*0.9);
-        base.x *= uAspect;
-        vec2 ndc = uCursor + base * uScale;
-        gl_Position = vec4(ndc, 0.0, 1.0);
-        gl_PointSize = 2.0 + 3.0*tw;
-        vTw = tw;
-      }`,
-    fragmentShader:`precision mediump float; varying float vTw;
-      void main(){ vec2 q = gl_PointCoord*2.0-1.0; float d=dot(q,q); float a = smoothstep(1.0,0.0,d) * mix(0.35,0.95,vTw); gl_FragColor = vec4(0.95,0.98,1.0, a); }`
-  })
-);
+const haloUni = { uTime:{value:0}, uCursor:{value:new THREE.Vector2(0,0)}, uScale:{value:1.0}, uAspect:{value:1.0},
+                  uColorA:{value:new THREE.Vector3(0.10,0.85,1.00)}, uColorB:{value:new THREE.Vector3(1.00,0.35,0.60)} };
+const haloPoints = new THREE.Points(haloGeo,new THREE.ShaderMaterial({
+  uniforms: haloUni, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+  vertexShader:`
+    attribute vec2 aPos; attribute float aPhase, aRad;
+    uniform vec2 uCursor; uniform float uScale, uAspect, uTime; varying float vA;
+    void main(){
+      float tw = sin(uTime*4.0 + aPhase)*0.5 + 0.5;
+      vec2 base = normalize(aPos) * (0.08 + aRad*0.9);
+      base.x *= uAspect;
+      vec2 ndc = uCursor + base * uScale;
+      gl_Position = vec4(ndc, 0.0, 1.0);
+      gl_PointSize = 2.0 + 3.0*tw;
+      vA = tw;
+    }`,
+  fragmentShader:`precision mediump float; varying float vA; uniform vec3 uColorA,uColorB;
+    void main(){ vec2 q = gl_PointCoord*2.0-1.0; float d=dot(q,q);
+      float a = smoothstep(1.0,0.0,d)*mix(0.35,0.95,vA);
+      vec3 col = mix(uColorA,uColorB,vA);
+      gl_FragColor = vec4(col, a);
+    }`
+}));
 overlay.add(haloPoints);
 
-/* 2D canvases sizing */
+/* ========= 2D canvases ========= */
 function size2D(){
-  const r=gl.getBoundingClientRect();
   const pr = clampRatio();
-  field.width=r.width*pr; field.height=r.height*pr; field.style.width=r.width+'px'; field.style.height=r.height+'px'; fctx.setTransform(pr,0,0,pr,0,0);
-  grid.width=r.width*pr;  grid.height=r.height*pr;  grid.style.width=r.width+'px';  grid.style.height=r.height+'px';  gctx.setTransform(pr,0,0,pr,0,0);
-  haloUni.uAspect.value = r.width / r.height;
+  field.width=VW*pr; field.height=VH*pr; fctx.setTransform(pr,0,0,pr,0,0);
+  grid.width=VW*pr;  grid.height=VH*pr;  gctx.setTransform(pr,0,0,pr,0,0);
+  haloUni.uAspect.value = (VW||1)/(VH||1);
 }
 size2D();
-addEventListener('resize', size2D, { passive:true });
-new ResizeObserver(size2D).observe(gl);
 
-/* Cursor mapping */
+/* ========= Cursor + scroll-driven halo color ========= */
 const worldMouse=new THREE.Vector2(0,0); let baseMass=0.75,mass=0.75,spike=0;
 function screenToWorldOnPlane(sx,sy,planeZ=0){
-  const rect=gl.getBoundingClientRect();
-  const nx=((sx-rect.left)/rect.width)*2-1;
-  const ny=-(((sy-rect.top)/rect.height)*2-1);
+  const nx=((sx)/VW)*2-1;
+  const ny=-(((sy)/VH)*2-1);
   const o=camera.position.clone();
   const v=new THREE.Vector3(nx,ny,0.5).unproject(camera);
-  const d=v.sub(o).normalize();
-  const t=(planeZ - o.z)/d.z;
+  const d=v.sub(o).normalize(); const t=(planeZ - o.z)/d.z;
   return new THREE.Vector2(o.x + d.x*t, o.y + d.y*t);
 }
 addEventListener('pointermove',e=>{
@@ -359,19 +356,25 @@ addEventListener('pointermove',e=>{
   const nx=((e.clientX-rect.left)/rect.width)*2-1;
   const ny=-(((e.clientY-rect.top)/rect.height)*2-1);
   haloUni.uCursor.value.set(nx,ny);
-  worldMouse.copy(screenToWorldOnPlane(e.clientX,e.clientY,0));
+  worldMouse.copy(screenToWorldOnPlane(e.clientX-rect.left,e.clientY-rect.top,0));
 },{passive:true});
 addEventListener('click',()=>{spike=1;});
 
-/* Flow field + grid (throttled on mobile / hidden) */
-const seeds=[];(function(){const n=prefersReduced?48:(quality==='high'?96:64); for(let i=0;i<n;i++){ const a=i/n*Math.PI*2,r=1+(i%2)*0.22; seeds.push({x:Math.cos(a)*r,y:Math.sin(a)*r}); }})();
+function onScroll(){
+  const p = Math.max(0, Math.min(1, scrollY / (document.documentElement.scrollHeight - innerHeight)));
+  const a = haloUni.uColorA.value, b = haloUni.uColorB.value;
+  a.set(0.10+0.5*p, 0.85-0.4*p, 1.00-0.3*p);
+  b.set(1.00-0.65*p, 0.35+0.5*p, 0.60+0.3*p);
+}
+addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+/* ========= Flow field + grid (throttled) ========= */
+const seeds=[];(function(){const n=prefersReduced?36:(quality==='high'?96:60); for(let i=0;i<n;i++){ const a=i/n*Math.PI*2,r=1+(i%2)*0.22; seeds.push({x:Math.cos(a)*r,y:Math.sin(a)*r}); }})();
 function fVec(x,y){ const r2=Math.max(x*x+y*y,0.0004),inv=1.0/Math.pow(r2,0.75); let vx=-y*inv,vy=x*inv; const dx=x-worldMouse.x,dy=y-worldMouse.y,q2=dx*dx+dy*dy+0.02,grav=mass/q2; vx+=(-dy)*grav*0.28; vy+=(dx)*grav*0.28; return [vx,vy]; }
-function toScreen(x,y){ const v=new THREE.Vector3(x,y,0).project(camera); const r=gl.getBoundingClientRect(); return [(v.x*0.5+0.5)*r.width,(-v.y*0.5+0.5)*r.height]; }
+function toScreen(x,y){ const v=new THREE.Vector3(x,y,0).project(camera); return [(v.x*0.5+0.5)*VW, (-v.y*0.5+0.5)*VH]; }
 function drawField(){
-  if (prefersReduced || (document.visibilityState!=='visible')) return;
-  const r=gl.getBoundingClientRect();
-  fctx.clearRect(0,0,r.width,r.height);
-  fctx.globalCompositeOperation='lighter';
+  if (prefersReduced || document.visibilityState!=='visible') return;
+  fctx.clearRect(0,0,VW,VH); fctx.globalCompositeOperation='lighter';
   const cols=['rgba(20,212,191,0.16)','rgba(120,180,255,0.14)','rgba(234,86,255,0.12)','rgba(255,212,96,0.09)'];
   const steps = (quality==='high'?72:48);
   for(let k=0;k<seeds.length;k++){
@@ -385,10 +388,9 @@ function drawField(){
 }
 function drawGrid(){
   if (document.visibilityState!=='visible') return;
-  const r=gl.getBoundingClientRect();
-  gctx.clearRect(0,0,r.width,r.height);
+  gctx.clearRect(0,0,VW,VH);
   gctx.strokeStyle='rgba(255,255,255,0.06)'; gctx.lineWidth=1;
-  const step=(quality==='high'?40:48), cols=Math.ceil(r.width/step)+2, rows=Math.ceil(r.height/step)+2;
+  const step=(quality==='high'?40:50), cols=Math.ceil(VW/step)+2, rows=Math.ceil(VH/step)+2;
   for(let j=-1;j<=rows;j++){
     gctx.beginPath();
     for(let i=-1;i<=cols;i++){
@@ -397,7 +399,7 @@ function drawGrid(){
       const dx=p.x-worldMouse.x, dy=p.y-worldMouse.y, r2=dx*dx+dy*dy+0.08;
       const k=0.18*mass/r2; p.x+=dx*k; p.y+=dy*k;
       const q=new THREE.Vector3(p.x,p.y,0).project(camera);
-      const px=(q.x*0.5+0.5)*r.width, py=(-q.y*0.5+0.5)*r.height;
+      const px=(q.x*0.5+0.5)*VW, py=(-q.y*0.5+0.5)*VH;
       if(i===-1) gctx.moveTo(px,py); else gctx.lineTo(px,py);
     }
     gctx.stroke();
@@ -410,71 +412,44 @@ function drawGrid(){
       const dx=p.x-worldMouse.x, dy=p.y-worldMouse.y, r2=dx*dx+dy*dy+0.08;
       const k=0.18*mass/r2; p.x+=dx*k; p.y+=dy*k;
       const q=new THREE.Vector3(p.x,p.y,0).project(camera);
-      const px=(q.x*0.5+0.5)*r.width, py=(-q.y*0.5+0.5)*r.height;
+      const px=(q.x*0.5+0.5)*VW, py=(-q.y*0.5+0.5)*VH;
       if(j===-1) gctx.moveTo(px,py); else gctx.lineTo(px,py);
     }
     gctx.stroke();
   }
 }
 
-/* UI bindings */
+/* ========= Controls ========= */
+const exposureEl=document.getElementById('exposure');
+const massEl=document.getElementById('mass');
+const speedEl=document.getElementById('speed');
 exposureEl.addEventListener('input',()=>nebMat.uniforms.uExposure.value=uni.uExposure.value=parseFloat(exposureEl.value));
 massEl.addEventListener('input',()=>baseMass=parseFloat(massEl.value));
 speedEl.addEventListener('input',()=>uni.uSpeed.value=parseFloat(speedEl.value));
 
-/* Reveal animations — lazy-load GSAP/ScrollTrigger when idle */
-function initRevealsWithGSAP(gsap,ScrollTrigger){
-  gsap.registerPlugin(ScrollTrigger);
-  document.querySelectorAll('.section').forEach(sec=>{
-    const cards=[...sec.querySelectorAll('.card')];
-    const tl=gsap.timeline({scrollTrigger:{trigger:sec,start:'top 78%',once:true}});
-    tl.from(sec.querySelector('.title'), {y:36,opacity:0,duration:0.6,ease:'power3.out'}, 0)
-      .from(sec.querySelector('.lead'),  {y:18,opacity:0,duration:0.6,ease:'power3.out'}, 0.05)
-      .from(cards, {y:22,autoAlpha:0,stagger:0.08,duration:0.4,ease:'power3.out'}, 0.1);
-  });
-}
-if ('requestIdleCallback' in window){
-  requestIdleCallback(async ()=>{
-    try{
-      const [{default:gsap},{default:ScrollTrigger}] = await Promise.all([
-        import("https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"),
-        import("https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js")
-      ]);
-      initRevealsWithGSAP(gsap,ScrollTrigger);
-    }catch(e){/* no-op fallback */}
-  });
-}
-
-/* Certifications accordion */
-document.querySelectorAll('.card.cert').forEach(card=>{
-  card.style.cursor='pointer';
-  card.addEventListener('click',()=>{ const list=card.querySelector('.items'); if(!list) return; list.toggleAttribute('hidden'); });
-});
-
-/* ===== Main loop with throttled 2D and visibility pause ===== */
-let t0=performance.now();
-let running = true;
-document.addEventListener('visibilitychange', ()=> running = document.visibilityState==='visible');
-let last2D = 0, target2D = (quality==='high'? 1/60 : 1/30);
-
+/* ========= Main loop (throttled 2D) ========= */
+let running = true; document.addEventListener('visibilitychange',()=>running=(document.visibilityState==='visible'));
+let t0=performance.now(), last2D=0, target2D = (quality==='high'? 1/60 : 1/30);
 function tick(){
-  if (!running){ requestAnimationFrame(tick); return; }
-  const t=performance.now(),dt=(t-t0)/1000; t0=t;
+  if(!running){ requestAnimationFrame(tick); return; }
+  const t=performance.now(), dt=(t-t0)/1000; t0=t;
   mass+=(baseMass-mass)*0.06; if(spike>0){mass+=0.5*spike; spike*=0.88;}
   const wm=new THREE.Vector3(worldMouse.x,worldMouse.y,mass);
   uni.uMouse.value.copy(wm); sUni.uMouse.value.copy(wm);
-  const timeScale = (prefersReduced ? 0.35 : (quality==='high'?0.6:0.5));
-  uni.uTime.value+= dt*timeScale; sUni.uTime.value+= dt; nebMat.uniforms.uTime.value+=dt; haloUni.uTime.value+=dt;
+
+  const timeScale = (prefersReduced?0.35:(quality==='high'?0.6:0.5));
+  uni.uTime.value+=dt*timeScale; sUni.uTime.value+=dt; nebMat.uniforms.uTime.value+=dt; haloUni.uTime.value+=dt;
+
   renderer.render(scene,camera);
   renderer.autoClear=false; renderer.clearDepth(); renderer.render(overlay,cam2); renderer.autoClear=true;
 
-  const now = t/1000;
-  if (now - last2D >= target2D){ drawField(); drawGrid(); last2D = now; }
+  const now=t/1000; if(now-last2D>=target2D){ drawField(); drawGrid(); last2D=now; }
   requestAnimationFrame(tick);
 }
-requestAnimationFrame(tick);
+function boot(){ size2D(); resizeGL(); requestAnimationFrame(tick); }
+boot();
 
-/* Smoke test */
+/* ========= Smoke test ========= */
 setTimeout(()=>{ console.assert(scene.children.length>=3,'scene ok'); },300);
 </script>
 </body>
