@@ -13,7 +13,6 @@
   body,h1,h2,h3,h4,h5,h6,p,ul{margin:0}
   body{background:radial-gradient(1200px 800px at 50% 50%,var(--bg1) 0%,var(--bg0) 55%,#03040a 100%);color:var(--ink);font:400 16px/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow-x:hidden}
 
-  /* Fixed layers must truly fill the viewport */
   #gl,#field,#grid,.vignette{position:fixed;inset:0;pointer-events:none}
   #gl,#field,#grid{display:block;width:100vw;height:100vh}
   #gl{z-index:0} #field{z-index:1} #grid{z-index:1}
@@ -142,9 +141,7 @@
   </div>
 </div></section>
 
-
 <script type="module">
-/* External libs in one module */
 import * as THREE from "https://unpkg.com/three@0.155.0/build/three.module.js";
 import gsap from "https://unpkg.com/gsap@3.12.5/index.js";
 import ScrollTrigger from "https://unpkg.com/gsap@3.12.5/ScrollTrigger.js";
@@ -178,7 +175,7 @@ function resize() {
   const w = Math.max(1, Math.round(r.width));
   const h = Math.max(1, Math.round(r.height));
   renderer.setPixelRatio(clampRatio());
-  renderer.setSize(w, h, true); // update CSS size to avoid top-left postage stamp
+  renderer.setSize(w, h, true);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
 }
@@ -369,11 +366,12 @@ function drawGrid(){
   gctx.clearRect(0,0,r.width,r.height);
   gctx.strokeStyle='rgba(255,255,255,0.06)'; gctx.lineWidth=1;
   const step=40, cols=Math.ceil(r.width/step)+2, rows=Math.ceil(r.height/step)+2;
+
   for(let j=-1;j<=rows;j++){
     gctx.beginPath();
     for(let i=-1;i<=cols;i++){
-      const sx=i*step, sy=j*step;
-      let p=screenToWorldOnPlane(sx,sy,0);
+      const sx=i*step+0, sy=j*step+0;
+      let p=screenToWorldOnPlane(sx,sy,0);  /* note: sx,sy in client px from canvas origin */
       const dx=p.x-worldMouse.x, dy=p.y-worldMouse.y, r2=dx*dx+dy*dy+0.08;
       const k=0.18*mass/r2; p.x+=dx*k; p.y+=dy*k;
       const q=new THREE.Vector3(p.x,p.y,0).project(camera);
@@ -385,7 +383,7 @@ function drawGrid(){
   for(let i=-1;i<=cols;i++){
     gctx.beginPath();
     for(let j=-1;j<=rows;j++){
-      const sx=i*step, sy=j*step;
+      const sx=i*step+0, sy=j*step+0;
       let p=screenToWorldOnPlane(sx,sy,0);
       const dx=p.x-worldMouse.x, dy=p.y-worldMouse.y, r2=dx*dx+dy*dy+0.08;
       const k=0.18*mass/r2; p.x+=dx*k; p.y+=dy*k;
@@ -422,7 +420,7 @@ document.querySelectorAll('.card.cert').forEach(card=>{
   card.addEventListener('click',()=>{ const list=card.querySelector('.items'); if(!list) return; list.toggleAttribute('hidden'); });
 });
 
-/* Section reveals: prevent stuck blur */
+/* Section reveals */
 document.querySelectorAll('.section').forEach(sec=>{
   const cards=[...sec.querySelectorAll('.card')];
   const tl=gsap.timeline({scrollTrigger:{trigger:sec,start:'top 78%',once:true}});
