@@ -11,6 +11,10 @@
 
 <style>
   :root{
+    --t1:#11b3a7; /* deep teal */
+    --t2:#0e7490; /* deep cyan */
+    --t3:#f59e0b; /* amber */
+    --t4:#166534; /* forest */
     --bg0:#05060a; --bg1:#0a0e18; --ink:#e8eef8; --muted:rgba(232,238,248,.72);
     --accentA:#1fd3bf; --accentB:#7ea2ff; --accentC:#e565ff; --accentD:#ffd260;
     --pad:6%; --mega:clamp(2.6rem,8vw,7.2rem); --xl:clamp(1.05rem,2.2vw,1.28rem);
@@ -92,10 +96,10 @@
   .card[data-expand] .card-body{max-height:0;overflow:hidden;transition:max-height .28s ease;}
   .card[data-expand].open .card-body{max-height:520px;}
 
-  #s-intro .card{ --tint: var(--accentA) }
-  #s-oss   .card{ --tint: var(--accentB) }
-  #s-certs .card{ --tint: var(--accentC) }
-  #s-about .card{ --tint: var(--accentD) }
+  #s-intro .card{ --tint: var(--t1) }
+  #s-oss   .card{ --tint: var(--t2) }
+  #s-certs .card{ --tint: var(--t3) }
+  #s-about .card{ --tint: var(--t4) }
 
   .card.cert-group {cursor:default}
   
@@ -291,6 +295,27 @@
 </div></section>
 
 <script type="module">
+/* ---------- Theme tints: randomized per visit (no pink/purple/light blue) ---------- */
+(() => {
+  const themes = [
+    ['#14b8a6','#0d9488','#f59e0b','#4d7c0f'], // teal, deep teal, amber, olive
+    ['#059669','#10b981','#c97a36','#a16207'], // emerald, emerald, copper, bronze-amber
+    ['#0891b2','#0e7490','#b45309','#a16207'], // deep cyan, cyan-700, brown-orange, bronze-amber
+    ['#0ea5a6','#155e75','#b08968','#166534'], // aqua, deep slate-cyan, bronze, forest
+    ['#0f766e','#65a30d','#ca8a04','#14532d'], // jade, leaf, saffron, deep moss
+    ['#0d9488','#0e7490','#d4a017','#065f46'], // deep teal, cyan-700, gold, evergreen
+  ];
+  const rnd = (crypto?.getRandomValues
+    ? crypto.getRandomValues(new Uint32Array(1))[0]
+    : Math.floor(Math.random()*1e9));
+  const pick = themes[rnd % themes.length];
+  const r = document.documentElement.style;
+  r.setProperty('--t1', pick[0]);
+  r.setProperty('--t2', pick[1]);
+  r.setProperty('--t3', pick[2]);
+  r.setProperty('--t4', pick[3]);
+})();
+
 /* ---------- Certifications toggle (single binding) ---------- */
 (() => {
   const group = document.querySelector('.cert-group');
