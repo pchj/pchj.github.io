@@ -1,0 +1,26 @@
+{
+  "name": "pchj-portfolio",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Paul Jung's data engineering portfolio with interactive galaxy visualization",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "dependencies": {
+    "three": "^0.155.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.155.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vitest": "^0.34.6",
+    "@vitest/ui": "^0.34.6"
+  },
+  "keywords": ["portfolio", "data-engineering", "three.js", "typescript", "galaxy", "visualization"],
+  "author": "Paul Jung",
+  "license": "MIT"
+}
