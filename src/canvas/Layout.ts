@@ -1,4 +1,7 @@
-import { LayoutDimensions } from '../types/global.d'
+export interface LayoutDimensions {
+  VW: number
+  VH: number
+}
 
 export class Layout {
   private dimensions: LayoutDimensions = { VW: 0, VH: 0 }

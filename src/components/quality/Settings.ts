@@ -1,4 +1,16 @@
-import { QualitySettings } from '../types/global.d'
+declare global {
+  interface Navigator {
+    deviceMemory?: number
+  }
+}
+
+export interface QualitySettings {
+  quality: 'ultra' | 'high' | 'med' | 'low'
+  isMobileUA: boolean
+  devMem: number
+  dpr: number
+  prefersReduced: boolean
+}
 
 export class Settings {
   private settings: QualitySettings

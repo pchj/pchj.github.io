@@ -1,9 +1,25 @@
+import * as THREE from 'three'
 import { ThreeSetup } from './ThreeSetup'
 import { Nebula } from './Nebula'
 import { Starfield } from './Starfield'
 import { Galaxy } from './Galaxy'
 import { Halo } from './Halo'
-import { SceneObject } from '../types/global.d'
+
+export interface SceneObject {
+  type: 'neb' | 'sf' | 'gal' | 'halo'
+  mat: THREE.ShaderMaterial | THREE.Material
+  uni?: {
+    uTime?: { value: number }
+    uMouse?: { value: THREE.Vector3 }
+    uCursor?: { value: THREE.Vector2 }
+    uScale?: { value: number }
+    uAspect?: { value: number }
+    uExposure?: { value: number }
+    uSpeed?: { value: number }
+    uHue?: { value: number }
+    [key: string]: any
+  }
+}
 
 export class SceneBuilder {
   private nebula!: Nebula

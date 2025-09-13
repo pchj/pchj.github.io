@@ -1,4 +1,3 @@
-import * as THREE from 'three'
 import { Settings } from './components/quality/Settings'
 import { Layout } from './canvas/Layout'
 import { CertificationsToggle } from './components/certifications/CertificationsToggle'

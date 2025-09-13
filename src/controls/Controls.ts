@@ -1,5 +1,20 @@
 import * as THREE from 'three'
-import { SceneObject } from '../types/global.d'
+
+export interface SceneObject {
+  type: 'neb' | 'sf' | 'gal' | 'halo'
+  mat: THREE.ShaderMaterial | THREE.Material
+  uni?: {
+    uTime?: { value: number }
+    uMouse?: { value: THREE.Vector3 }
+    uCursor?: { value: THREE.Vector2 }
+    uScale?: { value: number }
+    uAspect?: { value: number }
+    uExposure?: { value: number }
+    uSpeed?: { value: number }
+    uHue?: { value: number }
+    [key: string]: any
+  }
+}
 
 export class Controls {
   private exposureEl: HTMLInputElement
@@ -9,6 +24,8 @@ export class Controls {
   private baseMass = 0.7
   private mass = 0.7
   private spike = 0
+
+  private cursorPosition = new THREE.Vector2(0, 0)
 
   constructor(
     private layout: { glCanvas: HTMLCanvasElement; VW: number; VH: number },
@@ -47,8 +64,8 @@ export class Controls {
       const nx = ((e.clientX - r.left) / r.width) * 2 - 1
       const ny = -(((e.clientY - r.top) / r.height) * 2 - 1)
       
-      // Update cursor position for halo
-      // This will be accessed via getCursorPosition()
+      // Store cursor position for halo
+      this.cursorPosition.set(nx, ny)
       
       // Update world mouse position
       this.worldMouse.copy(this.screenToWorldOnPlane(e.clientX - r.left, e.clientY - r.top, 0))
@@ -75,7 +92,7 @@ export class Controls {
     return new THREE.Vector2(o.x + d.x * t, o.y + d.y * t)
   }
 
-  update(deltaTime: number, quality: string) {
+  update(_deltaTime: number, quality: string) {
     const massBias = (quality === 'high' || quality === 'ultra') ? .22 : 0
     this.mass += (this.baseMass + massBias - this.mass) * .06
     
@@ -92,10 +109,7 @@ export class Controls {
   }
 
   getCursorPosition(): THREE.Vector2 {
-    // This should be updated from pointer events
-    const r = this.layout.glCanvas.getBoundingClientRect()
-    // Return normalized device coordinates
-    return new THREE.Vector2(0, 0) // Will be updated by mouse events
+    return this.cursorPosition
   }
 
   getScrollProgress(): number {
@@ -119,7 +133,7 @@ export class Controls {
 
   updateSpeed(objects: SceneObject[]) {
     const galaxy = objects.find(o => o.type === 'gal')
-    if (galaxy && galaxy.uni) {
+    if (galaxy && galaxy.uni && galaxy.uni.uSpeed) {
       galaxy.uni.uSpeed.value = this.getSpeed()
     }
   }

@@ -1,6 +1,10 @@
 import * as THREE from 'three'
 import { Layout } from './Layout'
-import { FlowSeed } from '../types/global.d'
+
+export interface FlowSeed {
+  x: number
+  y: number
+}
 
 export class FieldGrid {
   private seeds: FlowSeed[] = []
