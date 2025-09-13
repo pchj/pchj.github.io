@@ -14,6 +14,7 @@ export interface GalaxyUniforms {
   uColors2: { value: THREE.Vector3 };
   uColors3: { value: THREE.Vector3 };
   uHue: { value: number };
+  [uniform: string]: { value: any };
 }
 
 export class Galaxy {

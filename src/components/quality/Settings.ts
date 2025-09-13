@@ -64,8 +64,7 @@ export class Settings {
     }
 
     // Auto-detect based on device capabilities
-    const wantUltra = this.urlQuality === 'ultra' || 
-                     (!this.isMobileUA && this.deviceMemory >= 8 && this.devicePixelRatio >= 1.5);
+    const wantUltra = (!this.isMobileUA && this.deviceMemory >= 8 && this.devicePixelRatio >= 1.5);
     
     if (wantUltra) return 'ultra';
     if (this.isMobileUA || this.deviceMemory <= 4) return 'med';

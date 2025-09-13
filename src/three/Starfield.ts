@@ -8,6 +8,7 @@ import * as THREE from 'three';
 export interface StarfieldUniforms {
   uTime: { value: number };
   uMouse: { value: THREE.Vector3 };
+  [uniform: string]: { value: any };
 }
 
 export class Starfield {

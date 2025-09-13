@@ -13,6 +13,7 @@ export interface HaloUniforms {
   uColorA: { value: THREE.Vector3 };
   uColorB: { value: THREE.Vector3 };
   uColorC: { value: THREE.Vector3 };
+  [uniform: string]: { value: any };
 }
 
 export class Halo {

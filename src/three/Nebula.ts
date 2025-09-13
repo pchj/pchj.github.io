@@ -8,6 +8,7 @@ import * as THREE from 'three';
 export interface NebulaUniforms {
   uTime: { value: number };
   uExposure: { value: number };
+  [uniform: string]: { value: any };
 }
 
 export class Nebula {
