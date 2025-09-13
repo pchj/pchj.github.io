@@ -1,4 +1,8 @@
-// app.js
+// app.legacy.js - Alpha Legacy Build
+// This is the original monolithic JavaScript implementation.
+// Kept for backward compatibility during the TypeScript modular refactor.
+// To use this version: add <script type="module" src="app.legacy.js"></script> to index.html
+// and remove the new modular script tag.
 /* ---------- Certifications toggle (single binding) ---------- */
 (() => {
   const group = document.querySelector('.cert-group');
