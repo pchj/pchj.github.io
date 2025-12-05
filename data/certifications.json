@@ -1,0 +1,145 @@
+[
+  {
+    "title": "AWS Certified Data Engineer – Associate (DEA-C01)",
+    "provider": "AWS",
+    "subtitle": "End-to-end data pipelines on AWS",
+    "descriptionUrl": "",
+    "certUrl": "https://aws.amazon.com/certification/certified-data-engineer-associate/",
+    "enabled": true,
+    "showCertLink": false,
+    "progress": 0.5,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "AWS Certified Solutions Architect – Associate",
+    "provider": "AWS",
+    "subtitle": "Designing distributed architectures on AWS",
+    "descriptionUrl": "",
+    "certUrl": "https://aws.amazon.com/certification/certified-solutions-architect-associate/",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "Certified Kubernetes Administrator (CKA)",
+    "provider": "CNCF",
+    "subtitle": "Kubernetes cluster operations",
+    "descriptionUrl": "",
+    "certUrl": "https://training.linuxfoundation.org/certification/certified-kubernetes-administrator-cka/",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "Certified Kubernetes Application Developer (CKAD)",
+    "provider": "CNCF",
+    "subtitle": "Cloud-native application design on Kubernetes",
+    "descriptionUrl": "",
+    "certUrl": "https://training.linuxfoundation.org/certification/certified-kubernetes-application-developer-ckad/",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "Databricks Certified Data Engineer Associate",
+    "provider": "Databricks",
+    "subtitle": "Lakehouse data engineering",
+    "descriptionUrl": "",
+    "certUrl": "https://www.databricks.com/learn/certification/data-engineer-associate",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "dbt Fundamentals",
+    "provider": "dbt Labs",
+    "subtitle": "Analytics engineering with dbt",
+    "descriptionUrl": "",
+    "certUrl": "https://www.getdbt.com/dbt-certification/fundamentals",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "Google Professional Data Engineer",
+    "provider": "Google Cloud",
+    "subtitle": "Designing and building data processing systems",
+    "descriptionUrl": "",
+    "certUrl": "https://cloud.google.com/certification/data-engineer",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "HashiCorp Certified: Terraform Associate",
+    "provider": "HashiCorp",
+    "subtitle": "Infrastructure automation with Terraform",
+    "descriptionUrl": "",
+    "certUrl": "https://developer.hashicorp.com/certifications/infrastructure-automation",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "Microsoft Certified: Azure Administrator Associate (AZ-104)",
+    "provider": "Microsoft",
+    "subtitle": "Core Azure administration",
+    "descriptionUrl": "",
+    "certUrl": "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "Microsoft Certified: Azure Solutions Architect Expert (AZ-305)",
+    "provider": "Microsoft",
+    "subtitle": "Designing Azure infrastructure and solutions",
+    "descriptionUrl": "",
+    "certUrl": "https://learn.microsoft.com/en-us/credentials/certifications/azure-solutions-architect/",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "Microsoft Certified: Fabric Data Engineer Associate (DP-600)",
+    "provider": "Microsoft",
+    "subtitle": "Analytics solutions on Microsoft Fabric",
+    "descriptionUrl": "",
+    "certUrl": "https://learn.microsoft.com/en-us/credentials/certifications/fabric-data-engineer-associate/",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "Microsoft Certified: Power BI Data Analyst Associate (PL-300)",
+    "provider": "Microsoft",
+    "subtitle": "Data modeling and reporting with Power BI",
+    "descriptionUrl": "",
+    "certUrl": "https://learn.microsoft.com/en-us/credentials/certifications/power-bi-data-analyst-associate/",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  },
+  {
+    "title": "Snowflake SnowPro Core",
+    "provider": "Snowflake",
+    "subtitle": "Snowflake AI Data Cloud foundations",
+    "descriptionUrl": "",
+    "certUrl": "https://learn.snowflake.com/en/certifications/snowpro-core/",
+    "enabled": false,
+    "showCertLink": false,
+    "progress": 0.0,
+    "targetDate": "2025-12-31"
+  }
+]
