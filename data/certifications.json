@@ -5,9 +5,9 @@
     "subtitle": "End-to-end data pipelines on AWS",
     "descriptionUrl": "",
     "certUrl": "https://aws.amazon.com/certification/certified-data-engineer-associate/",
-    "enabled": true,
+    "enabled": false,
     "showCertLink": false,
-    "progress": 0.5,
+    "progress": 0.0,
     "targetDate": "2025-12-31"
   },
   {
