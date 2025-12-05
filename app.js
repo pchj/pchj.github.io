@@ -239,3 +239,116 @@ initAll();
 
 /* Smoke check */
 setTimeout(()=>{ console.assert(scene.children.length>=3,'scene ok'); },300);
+
+/* ---------- Certifications: load from JSON ---------- */
+(async () => {
+  const grid = document.getElementById('cg-tracks');
+  if (!grid) return;
+
+  try {
+    const res = await fetch('data/certifications.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    /** @type {Array<{
+     *   title: string,
+     *   provider?: string,
+     *   subtitle?: string,
+     *   descriptionUrl?: string,
+     *   certUrl?: string,
+     *   enabled?: boolean,
+     *   showCertLink?: boolean,
+     *   progress?: number,
+     *   targetDate?: string
+     * }>} */
+    let certs = await res.json();
+
+    // Sort by provider, then title (defensive)
+    certs = certs.sort((a, b) =>
+      (a.provider || '').localeCompare(b.provider || '') ||
+      (a.title || '').localeCompare(b.title || '')
+    );
+
+    // Clear placeholder
+    grid.innerHTML = '';
+
+    certs
+      .filter(c => c.enabled !== false) // enabled === true or undefined
+      .forEach(cert => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        // Title: link to description page if present, otherwise plain text
+        const h3 = document.createElement('h3');
+        if (cert.descriptionUrl) {
+          const a = document.createElement('a');
+          a.href = cert.descriptionUrl;
+          a.textContent = cert.title;
+          a.rel = 'noreferrer noopener';
+          a.target = '_blank';
+          h3.appendChild(a);
+        } else {
+          h3.textContent = cert.title;
+        }
+
+        // Provider + subtitle
+        const p = document.createElement('p');
+        const bits = [];
+        if (cert.provider) bits.push(cert.provider);
+        if (cert.subtitle) bits.push(cert.subtitle);
+        p.textContent = bits.join(' · ');
+
+        // Meta: progress + target date
+        const meta = document.createElement('p');
+        meta.className = 'cert-meta';
+        const pct = typeof cert.progress === 'number'
+          ? Math.round(cert.progress * 100)
+          : null;
+        const metaParts = [];
+        if (pct !== null) metaParts.push(`Progress: ${pct}%`);
+        if (cert.targetDate) metaParts.push(`Target: ${cert.targetDate}`);
+        meta.textContent = metaParts.join('  |  ');
+
+        // Visual progress bar (optional)
+        if (pct !== null) {
+          const bar = document.createElement('div');
+          bar.className = 'cert-progress';
+          const fill = document.createElement('div');
+          fill.className = 'cert-progress-fill';
+          fill.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+          bar.appendChild(fill);
+          card.appendChild(bar);
+        }
+
+        // Optional: official cert link shown only when showCertLink is true
+        if (cert.certUrl && cert.showCertLink) {
+          const linkP = document.createElement('p');
+          linkP.className = 'cert-links';
+          const a = document.createElement('a');
+          a.href = cert.certUrl;
+          a.target = '_blank';
+          a.rel = 'noreferrer noopener';
+          a.textContent = 'Official exam page →';
+          linkP.appendChild(a);
+          card.appendChild(linkP);
+        }
+
+        card.appendChild(h3);
+        card.appendChild(p);
+        if (meta.textContent) card.appendChild(meta);
+
+        grid.appendChild(card);
+      });
+
+    if (!grid.children.length) {
+      // If everything is disabled, show a soft message instead of an empty area
+      const msg = document.createElement('p');
+      msg.className = 'lead-sm';
+      msg.textContent = 'No certifications currently active in the roadmap.';
+      grid.appendChild(msg);
+    }
+  } catch (err) {
+    console.error('Failed to load certifications.json', err);
+    // Leave placeholder or show a brief error UI if desired
+  }
+})();
+
